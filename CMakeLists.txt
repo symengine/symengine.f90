@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+enable_language(C Fortran)
 project(symengine.f90)
 
 set(CMAKE_PREFIX_PATH ${SymEngine_DIR} ${CMAKE_PREFIX_PATH})
@@ -63,5 +64,7 @@ message("HAVE_SYMENGINE_MPC      : ${HAVE_SYMENGINE_MPC}")
 message("HAVE_SYMENGINE_PIRANHA  : ${HAVE_SYMENGINE_PIRANHA}")
 message("HAVE_SYMENGINE_FLINT    : ${HAVE_SYMENGINE_FLINT}")
 message("HAVE_SYMENGINE_LLVM     : ${HAVE_SYMENGINE_LLVM}")
+
+enable_testing()
 
 add_subdirectory(src)

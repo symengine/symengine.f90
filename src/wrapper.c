@@ -14,6 +14,10 @@ void f(int i)
     basic_mul(e, n, x);
     basic_add(e, e, y);
     s = basic_str(e);
-    printf("Result: %s", s);
+    printf("Result: %s\n", s);
     basic_str_free(s);
+    basic_free_stack(x);
+    basic_free_stack(y);
+    basic_free_stack(e);
+    basic_free_stack(n);
 }
