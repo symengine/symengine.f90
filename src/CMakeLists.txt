@@ -1,5 +1,6 @@
 set(SRC
-	basic.f90
+    wrapper.c
+    basic.f90
     )
 
 include_directories(BEFORE ${python_wrapper_BINARY_DIR}/symengine/lib)
