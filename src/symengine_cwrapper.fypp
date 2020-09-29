@@ -1,0 +1,487 @@
+module symengine_cwrapper
+  
+  use iso_c_binding
+  implicit none
+  
+  public
+
+  interface
+
+  ! void basic_new_stack(basic s);
+  subroutine basic_new_stack(s) bind(c,name="basic_new_stack")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_free_stack(basic s);
+  subroutine basic_free_stack(s) bind(c,name="basic_free_stack")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! basic_struct *basic_new_heap();
+  type(c_ptr) function basic_new_heap() bind(c,name="basic_new_heap")
+    import c_ptr
+  end function
+
+  ! void basic_free_heap(basic_struct *s);
+  subroutine basic_free_heap(s) bind(c,name="basic_free_heap")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! const char *symengine_version();
+  type(c_ptr) function symengine_version() bind(c,name="symengine_version")
+    import c_ptr
+  end function
+
+  !
+  ! Use these functions to get the commonly used constants as basic.
+  !
+
+  ! void basic_const_set(basic s, const char *c);
+  subroutine basic_const_set(s,c) bind(c,name="basic_const_set")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: c
+  end subroutine
+
+  ! void basic_const_zero(basic s);
+  subroutine basic_const_zero(s) bind(c,name="basic_const_zero")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_one(basic s);
+  subroutine basic_const_one(s) bind(c,name="basic_const_one")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_minus_one(basic s);
+  subroutine basic_const_minus_one(s) bind(c,name="basic_const_minus_one")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_I(basic s);
+  subroutine basic_const_I(s) bind(c,name="basic_const_I")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_pi(basic s);
+  subroutine basic_const_pi(s) bind(c,name="basic_const_pi")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_E(basic s);
+  subroutine basic_const_E(s) bind(c,name="basic_const_E")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_EulerGamma(basic s);
+  subroutine basic_const_EulerGamma(s) bind(c,name="basic_const_EulerGamma")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_Catalan(basic s);
+  subroutine basic_const_Catalan(s) bind(c,name="basic_const_Catalan")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_GoldenRatio(basic s);
+  subroutine basic_const_GoldenRatio(s) bind(c,name="basic_const_GoldenRatio")
+    import c_ptr
+    type(c_ptr), value :: s
+  end subroutine
+
+  !
+  ! Use these functions to get the use of positive, negative or unsigned
+  ! infinity as basic.
+  !
+  ! void basic_const_infinity(basic s);
+  subroutine basic_const_infinity(s) bind(c,name="basic_const_infinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  !
+  ! void basic_const_neginfinity(basic s);
+  subroutine basic_const_neginfinity(s) bind(c,name="basic_const_neginfinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  !
+  ! void basic_const_complex_infinity(basic s);
+  subroutine basic_const_complex_infinity(s) bind(c,name="basic_const_complex_infinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  !
+  ! Use this function to get the use of Nan as basic.
+  !
+  ! void basic_const_nan(basic s);
+  subroutine basic_const_nan(s) bind(c,name="basic_const_nan")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! Assign value of b to a.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_assign(basic a, const basic b);
+  type(c_ptr) function basic_assign(a,b) bind(c,name="basic_assign")
+    import c_ptr
+    type(c_ptr) :: a
+    type(c_ptr), intent(in) :: b
+  end function
+
+  ! Parse str and assign value to b.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_parse(basic b, const char *str);
+  type(c_ptr) function basic_parse(b,str) bind(c,name="basic_parse")
+    import c_ptr, c_char
+    type(c_ptr) :: b
+    character(kind=c_char), intent(in) :: str(*)
+  end function
+
+  ! Parse str and assign value to b, set convert_xor to > 0 for default usage,
+  ! <= 0 otherwise.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_parse2(basic b, const char *str, int convert_xor);
+  type(c_ptr) function basic_parse2(b,str,convert_xor) bind(c,name="basic_parse2")
+    import c_ptr, c_char, c_int
+    type(c_ptr) :: b
+    character(kind=c_char), intent(in) :: str(*)
+    integer(c_int), value :: convert_xor
+  end function
+
+  ! Returns the typeID of the basic struct
+  !
+  ! TypeID basic_get_type(const basic s);
+  type(c_ptr) function basic_get_type(s) bind(c,name="basic_get_type")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+
+  ! Returns the typeID of the class with the name c
+  !
+  ! TypeID basic_get_class_id(const char *c);
+  type(c_ptr) function basic_get_class_id(c) bind(c,name="basic_get_class_id")
+    import c_ptr, c_char
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+  ! Returns the class name of an object with the typeid `id`.
+  ! The caller is responsible to free the string with 'basic_str_free'
+  !
+  ! char *basic_get_class_from_id(TypeID id);
+  type(c_ptr) function basic_get_class_from_id(id) bind(c,name="basic_get_class_from_id")
+    import c_ptr
+    type(c_ptr), value :: id
+  end function
+
+
+  ! Assign to s, a symbol with string representation c.
+  ! This function creates a new SymEngine::Symbol from a copy of
+  ! the string in c, thus the caller is free to use c afterwards.
+  ! CWRAPPER_OUTPUT_TYPE symbol_set(basic s, const char *c);
+  type(c_ptr) function symbol_set(s,c) bind(c,name="symbol_set")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+  ! Returns 1 if s has value zero; 0 otherwise
+  ! int number_is_zero(const basic s);
+  integer(c_int) function number_is_zero(s) bind(c,name="number_is_zero")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s has negative value; 0 otherwise
+  ! int number_is_negative(const basic s);
+  integer(c_int) function number_is_negative(s) bind(c,name="number_is_negative")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s has positive value; 0 otherwise
+  ! int number_is_positive(const basic s);
+  integer(c_int) function number_is_positive(s) bind(c,name="number_is_positive")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s is complex; 0 otherwise
+  ! int number_is_complex(const basic s);
+  integer(c_int) function number_is_complex(s) bind(c,name="number_is_complex")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+
+
+  ! Assign to s, a long.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_si(basic s, long i);
+  type(c_ptr) function integer_set_si(s,i) bind(c,name="integer_set_si")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i
+  end function
+  ! Assign to s, a ulong.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_ui(basic s, unsigned long i);
+  type(c_ptr) function integer_set_ui(s,i) bind(c,name="integer_set_ui")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i
+  end function
+
+  ! Assign to s, an integer that has base 10 representation c.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_str(basic s, const char *c);
+  type(c_ptr) function integer_set_str(s,c) bind(c,name="integer_set_str")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+  ! Assign to s, a real_double that has value of d.
+  ! CWRAPPER_OUTPUT_TYPE real_double_set_d(basic s, double d);
+  type(c_ptr) function real_double_set_d(s,d) bind(c,name="real_double_set_d")
+    import c_ptr, c_double
+    type(c_ptr) :: s
+    real(c_double), value :: d
+  end function
+  ! Returns double value of s.
+  ! double real_double_get_d(const basic s);
+  real(c_double) function real_double_get_d(s) bind(c,name="real_double_get_d")
+    import c_ptr, c_double
+    type(c_ptr), intent(in) :: s
+  end function
+
+
+  ! Assign to s, the real part of com
+  ! CWRAPPER_OUTPUT_TYPE complex_base_real_part(basic s, const basic com);
+  type(c_ptr) function complex_base_real_part(s,com) bind(c,name="complex_base_real_part")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: com
+  end function
+  ! Assign to s, the imaginary part of com
+  ! CWRAPPER_OUTPUT_TYPE complex_base_imaginary_part(basic s, const basic com);
+  type(c_ptr) function complex_base_imaginary_part(s,com) bind(c,name="complex_base_imaginary_part")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: com
+  end function
+
+  ! Assigns s = a + b.
+  ! CWRAPPER_OUTPUT_TYPE basic_add(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_add(s,a,b) bind(c,name="basic_add")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a - b.
+  ! CWRAPPER_OUTPUT_TYPE basic_sub(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_sub(s,a,b) bind(c,name="basic_sub")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a * b.
+  ! CWRAPPER_OUTPUT_TYPE basic_mul(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_mul(s,a,b) bind(c,name="basic_mul")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a / b.
+  ! CWRAPPER_OUTPUT_TYPE basic_div(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_div(s,a,b) bind(c,name="basic_div")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a ** b.
+  ! CWRAPPER_OUTPUT_TYPE basic_pow(basic s, const basic a, const basic 
+  type(c_ptr) function basic_pow(s,a,b) bind(c,name="basic_pow")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assign to s, derivative of expr with respect to sym.
+  ! Returns SYMENGINE_RUNTIME_ERROR if sym is not a symbol.
+  ! CWRAPPER_OUTPUT_TYPE basic_diff(basic s, const basic expr, const basic sym);
+  type(c_ptr) function basic_diff(s,expr,sym) bind(c,name="basic_diff")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: expr,sym
+  end function
+
+  ! Returns 1 if both basic are equal, 0 if not
+  ! int basic_eq(const basic a, const basic b);
+  integer(c_int) function basic_eq(a,b) bind(c,name="basic_eq")
+    import c_int, c_ptr
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Returns 1 if both basic are not equal, 0 if they are
+  ! int basic_neq(const basic a, const basic b);
+  integer(c_int) function basic_neq(a,b) bind(c,name="basic_neq")
+    import c_int, c_ptr
+    type(c_ptr), intent(in) :: a, b
+  end function
+
+  ! Returns a new char pointer to the string representation of s.
+  ! char *basic_str(const basic s);
+  type(c_ptr) function basic_str(s) bind(c,name="basic_str")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns a new char pointer to the string representation of s.
+  ! Compatible with Julia
+  ! char *basic_str_julia(const basic s);
+  type(c_ptr) function basic_str_julia(s) bind(c,name="basic_str_julia")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Printing mathml
+  ! char *basic_str_mathml(const basic s);
+  type(c_ptr) function basic_str_mathml(s) bind(c,name="basic_str_mathml")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Printing latex string
+  ! char *basic_str_latex(const basic s);
+  type(c_ptr) function basic_str_latex(s) bind(c,name="basic_str_latex")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Printing C code
+  ! char *basic_str_ccode(const basic s);
+  type(c_ptr) function basic_str_ccode(s) bind(c,name="basic_str_ccode")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Printing JavaScript code
+  ! char *basic_str_jscode(const basic s);
+  type(c_ptr) function basic_str_jscode(s) bind(c,name="basic_str_jscode")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Frees the string s
+  ! void basic_str_free(char *s);
+  subroutine basic_str_free(s) bind(c,name="basic_str_free")
+    import c_ptr
+    type(c_ptr), value :: s
+  end subroutine
+
+  integer(c_int) function symengine_have_component(c) bind(c,name="symengine_have_component")
+    import c_int, c_char
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+  integer(c_int) function is_a_Number(s) bind(c,name="is_a_Number")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_Integer(s) bind(c,name="is_a_Integer")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_Rational(s) bind(c,name="is_a_Rational")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_Symbol(s) bind(c,name="is_a_Symbol")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_Complex(s) bind(c,name="is_a_Complex")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_RealDouble(s) bind(c,name="is_a_RealDouble")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_ComplexDouble(s) bind(c,name="is_a_ComplexDouble")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_RealMPFR(s) bind(c,name="is_a_RealMPFR")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  integer(c_int) function is_a_ComplexMPFR(s) bind(c,name="is_a_ComplexMPFR")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+
+#:def INTERFACE_ONE_ARG_FUNC(func)
+  type(c_ptr) function basic_${func}$(s,a) bind(c,name="basic_${func}$")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a
+  end function
+#:enddef INTERFACE_ONE_ARG_FUNC
+
+@:INTERFACE_ONE_ARG_FUNC(expand)
+@:INTERFACE_ONE_ARG_FUNC(neg)
+@:INTERFACE_ONE_ARG_FUNC(abs)
+@:INTERFACE_ONE_ARG_FUNC(erf)
+@:INTERFACE_ONE_ARG_FUNC(erfc)
+@:INTERFACE_ONE_ARG_FUNC(sin)
+@:INTERFACE_ONE_ARG_FUNC(cos)
+@:INTERFACE_ONE_ARG_FUNC(tan)
+@:INTERFACE_ONE_ARG_FUNC(csc)
+@:INTERFACE_ONE_ARG_FUNC(sec)
+@:INTERFACE_ONE_ARG_FUNC(cot)
+@:INTERFACE_ONE_ARG_FUNC(asin)
+@:INTERFACE_ONE_ARG_FUNC(acos)
+@:INTERFACE_ONE_ARG_FUNC(asec)
+@:INTERFACE_ONE_ARG_FUNC(acsc)
+@:INTERFACE_ONE_ARG_FUNC(atan)
+@:INTERFACE_ONE_ARG_FUNC(acot)
+@:INTERFACE_ONE_ARG_FUNC(sinh)
+@:INTERFACE_ONE_ARG_FUNC(cosh)
+@:INTERFACE_ONE_ARG_FUNC(tanh)
+@:INTERFACE_ONE_ARG_FUNC(csch)
+@:INTERFACE_ONE_ARG_FUNC(sech)
+@:INTERFACE_ONE_ARG_FUNC(coth)
+@:INTERFACE_ONE_ARG_FUNC(asinh)
+@:INTERFACE_ONE_ARG_FUNC(acosh)
+@:INTERFACE_ONE_ARG_FUNC(asech)
+@:INTERFACE_ONE_ARG_FUNC(acsch)
+@:INTERFACE_ONE_ARG_FUNC(atanh)
+@:INTERFACE_ONE_ARG_FUNC(acoth)
+@:INTERFACE_ONE_ARG_FUNC(lambertw)
+@:INTERFACE_ONE_ARG_FUNC(zeta)
+@:INTERFACE_ONE_ARG_FUNC(dirichlet_eta)
+@:INTERFACE_ONE_ARG_FUNC(gamma)
+@:INTERFACE_ONE_ARG_FUNC(loggamma)
+@:INTERFACE_ONE_ARG_FUNC(sqrt)
+@:INTERFACE_ONE_ARG_FUNC(cbrt)
+@:INTERFACE_ONE_ARG_FUNC(exp)
+@:INTERFACE_ONE_ARG_FUNC(log)
+
+
+#:def INTERFACE_TWO_ARG_FUNC(func)
+  type(c_ptr) function basic_${func}$(s,a,b) bind(c,name="basic_${func}$")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+#:enddef INTERFACE_TWO_ARG_FUNC
+
+@:INTERFACE_TWO_ARG_FUNC(atan2)
+@:INTERFACE_TWO_ARG_FUNC(kronecker_delta)
+@:INTERFACE_TWO_ARG_FUNC(lowergamma)
+@:INTERFACE_TWO_ARG_FUNC(uppergamma)
+@:INTERFACE_TWO_ARG_FUNC(beta)
+@:INTERFACE_TWO_ARG_FUNC(polygamma)
+
+  subroutine symengine_print_stack_on_segfault() bind(c,name="symengine_print_stack_on_segfault")
+  end subroutine
+
+  end interface
+
+contains
+
+end module
