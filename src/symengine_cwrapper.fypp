@@ -328,43 +328,32 @@ module symengine_cwrapper
     type(c_ptr), intent(in) :: a, b
   end function
 
-  ! Returns a new char pointer to the string representation of s.
-  ! char *basic_str(const basic s);
-  type(c_ptr) function basic_str(s) bind(c,name="basic_str")
+#:def INTERFACE_STR_CONVERSION(str)
+  type(c_ptr) function basic_${str}$(s) bind(c,name="basic_${str}$")
     import c_ptr
     type(c_ptr), intent(in) :: s
   end function
+#:enddef INTERFACE_STR_CONVERSION
+
+  ! Returns a new char pointer to the string representation of s.
+  ! char *basic_str(const basic s);
+@:INTERFACE_STR_CONVERSION(str)
   ! Returns a new char pointer to the string representation of s.
   ! Compatible with Julia
   ! char *basic_str_julia(const basic s);
-  type(c_ptr) function basic_str_julia(s) bind(c,name="basic_str_julia")
-    import c_ptr
-    type(c_ptr), intent(in) :: s
-  end function
+@:INTERFACE_STR_CONVERSION(str_julia)
   ! Printing mathml
   ! char *basic_str_mathml(const basic s);
-  type(c_ptr) function basic_str_mathml(s) bind(c,name="basic_str_mathml")
-    import c_ptr
-    type(c_ptr), intent(in) :: s
-  end function
+@:INTERFACE_STR_CONVERSION(str_mathml)
   ! Printing latex string
   ! char *basic_str_latex(const basic s);
-  type(c_ptr) function basic_str_latex(s) bind(c,name="basic_str_latex")
-    import c_ptr
-    type(c_ptr), intent(in) :: s
-  end function
+@:INTERFACE_STR_CONVERSION(str_latex)
   ! Printing C code
   ! char *basic_str_ccode(const basic s);
-  type(c_ptr) function basic_str_ccode(s) bind(c,name="basic_str_ccode")
-    import c_ptr
-    type(c_ptr), intent(in) :: s
-  end function
+@:INTERFACE_STR_CONVERSION(str_ccode)
   ! Printing JavaScript code
   ! char *basic_str_jscode(const basic s);
-  type(c_ptr) function basic_str_jscode(s) bind(c,name="basic_str_jscode")
-    import c_ptr
-    type(c_ptr), intent(in) :: s
-  end function
+@:INTERFACE_STR_CONVERSION(str_jscode)
   ! Frees the string s
   ! void basic_str_free(char *s);
   subroutine basic_str_free(s) bind(c,name="basic_str_free")
@@ -372,47 +361,37 @@ module symengine_cwrapper
     type(c_ptr), value :: s
   end subroutine
 
+  ! Returns 1 if a specific component is installed and 0 if not.
+  ! Component can be "mpfr", "flint", "arb", "mpc", "ecm", "primesieve",
+  ! "piranha", "boost", "pthread", "llvm" or "llvm_long_double" (all in
+  ! lowercase).
+  ! This function, using string comparison, was implemented for particular
+  ! libraries that do not provide header access (i.e. SymEngine.jl
+  ! and other related shared libraries).
+  ! Avoid usage while having access to the headers. Instead simply use
+  ! HAVE_SYMENGINE_MPFR and other related macros directly.
   integer(c_int) function symengine_have_component(c) bind(c,name="symengine_have_component")
     import c_int, c_char
     character(kind=c_char), intent(in) :: c(*)
   end function
 
-  integer(c_int) function is_a_Number(s) bind(c,name="is_a_Number")
+#:def INTERFACE_IS_A(type)
+  integer(c_int) function is_a_${type}$(s) bind(c,name="is_a_${type}$")
     import c_ptr, c_int
     type(c_ptr), intent(in) :: s
   end function
-  integer(c_int) function is_a_Integer(s) bind(c,name="is_a_Integer")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_Rational(s) bind(c,name="is_a_Rational")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_Symbol(s) bind(c,name="is_a_Symbol")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_Complex(s) bind(c,name="is_a_Complex")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_RealDouble(s) bind(c,name="is_a_RealDouble")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_ComplexDouble(s) bind(c,name="is_a_ComplexDouble")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_RealMPFR(s) bind(c,name="is_a_RealMPFR")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
-  integer(c_int) function is_a_ComplexMPFR(s) bind(c,name="is_a_ComplexMPFR")
-    import c_ptr, c_int
-    type(c_ptr), intent(in) :: s
-  end function
+#:enddef INTERFACE_IS_A
+
+@:INTERFACE_IS_A(Number)
+@:INTERFACE_IS_A(Integer)
+@:INTERFACE_IS_A(Rational)
+@:INTERFACE_IS_A(Symbol)
+@:INTERFACE_IS_A(Complex)
+@:INTERFACE_IS_A(RealDouble)
+@:INTERFACE_IS_A(ComplexDouble)
+@:INTERFACE_IS_A(RealMPFR)
+@:INTERFACE_IS_A(ComplexMPFR)
+
 
 #:def INTERFACE_ONE_ARG_FUNC(func)
   type(c_ptr) function basic_${func}$(s,a) bind(c,name="basic_${func}$")
@@ -477,11 +456,324 @@ module symengine_cwrapper
 @:INTERFACE_TWO_ARG_FUNC(beta)
 @:INTERFACE_TWO_ARG_FUNC(polygamma)
 
+
+  !
+  ! Wrapper for vec_basic
+  !
+
+  ! CVecBasic *vecbasic_new();
+  type(c_ptr) function vecbasic_new() bind(c,name="vecbasic_new")
+    import c_ptr
+  end function
+  ! void vecbasic_free(CVecBasic *self);
+  subroutine vecbasic_free(self) bind(c,name="vecbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_push_back(CVecBasic *self, const basic value);
+  type(c_ptr) function vecbasic_push_back(self,value) bind(c,name="vecbasic_push_back")
+    import c_ptr
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: value
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_get(CVecBasic *self, size_t n, basic result);
+  type(c_ptr) function vecbasic_get(self,n,result) bind(c,name="vecbasic_get")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+    type(c_ptr) :: result
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_set(CVecBasic *self, size_t n, const basic s);
+  type(c_ptr) function vecbasic_set(self,n,s) bind(c,name="vecbasic_set")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+    type(c_ptr), intent(in) :: s
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_erase(CVecBasic *self, size_t n);
+  type(c_ptr) function vecbasic_erase(self,n) bind(c,name="vecbasic_erase")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+  end function
+  ! size_t vecbasic_size(CVecBasic *self);
+  integer(c_size_t) function vecbasic_size(self) bind(c,name="vecbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  ! Assigns to s the max of the provided args.
+  ! CWRAPPER_OUTPUT_TYPE basic_max(basic s, CVecBasic *d);
+  type(c_ptr) function basic_max(s,d) bind(c,name="basic_max")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: d
+  end function
+  ! Assigns to s the min of the provided args.
+  ! CWRAPPER_OUTPUT_TYPE basic_min(basic s, CVecBasic *d);
+  type(c_ptr) function basic_min(s,d) bind(c,name="basic_min")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: d
+  end function
+
+
+  !
+  ! Wrappers for Matrices
+  !
+
+  !
+  ! Wrapper for set_basic
+  ! 
+  ! typedef struct CSetBasic CSetBasic;
+  ! 
+  ! CSetBasic *setbasic_new();
+  type(c_ptr) function setbasic_new() bind(c,name="setbasic_new")
+    import c_ptr
+  end function
+  ! void setbasic_free(CSetBasic *self);
+  subroutine setbasic_free(self) bind(c,name="setbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! Returns 1 if insert is successful and 0 if set already contains the value
+  ! and insertion is unsuccessful
+  ! int setbasic_insert(CSetBasic *self, const basic value);
+  integer(c_int) function setbasic_insert(self,value) bind(c,name="setbasic_insert")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: value
+  end function
+  ! void setbasic_get(CSetBasic *self, int n, basic result);
+  subroutine setbasic_get(self,n,result) bind(c,name="setbasic_get")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    integer(c_int), intent(in) :: n
+    type(c_ptr) :: result
+  end subroutine
+  ! Returns 1 if value is found in the set and 0 if not
+  ! int setbasic_find(CSetBasic *self, basic value);
+  integer(c_int) function setbasic_find(self,value) bind(c,name="setbasic_find")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr) :: value
+  end function
+  ! Returns 1 if value was erased from the set and 0 if not
+  ! int setbasic_erase(CSetBasic *self, const basic value);
+  ! size_t setbasic_size(CSetBasic *self);
+  integer(c_size_t) function setbasic_size(self) bind(c,name="setbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  !
+  ! Wrapper for map_basic_basic
+  !
+  ! typedef struct CMapBasicBasic CMapBasicBasic;
+  ! 
+  ! CMapBasicBasic *mapbasicbasic_new();
+  type(c_ptr) function mapbasicbasic_new() bind(c,name="mapbasicbasic_new")
+    import c_ptr
+  end function
+  ! void mapbasicbasic_free(CMapBasicBasic *self);
+  subroutine mapbasicbasic_free(self) bind(c,name="mapbasicbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! void mapbasicbasic_insert(CMapBasicBasic *self, const basic key,
+  !                           const basic mapped);
+  subroutine mapbasicbasic_insert(self,key,mapped) bind(c,name="mapbasicbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: key, mapped
+  end subroutine
+  ! Returns 1 if such a key exists in the map and get is successful, 0 if not
+  ! int mapbasicbasic_get(CMapBasicBasic *self, const basic key, basic mapped);
+  integer(c_int) function mapbasicbasic_get(self,key,mapped) bind(c,name="mapbasicbasic_get")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: key, mapped    
+  end function
+  ! size_t mapbasicbasic_size(CMapBasicBasic *self);
+  integer(c_size_t) function mapbasicbasic_size(self) bind(c,name="mapbasicbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  ! --------------------------------------------
+
+
+  ! Returns a CVecBasic of vec_basic given by get_args
+  ! CWRAPPER_OUTPUT_TYPE basic_get_args(const basic self, CVecBasic *args);
+  type(c_ptr) function basic_get_args(self,args) bind(c,name="basic_get_args")
+    import c_ptr
+    type(c_ptr), intent(in) :: self
+    type(c_ptr) :: args
+  end function
+  ! Returns a CSetBasic of set_basic given by free_symbols
+  ! CWRAPPER_OUTPUT_TYPE basic_free_symbols(const basic self, CSetBasic *symbols);
+  type(c_ptr) function basic_free_symbols(self,symbols) bind(c,name="basic_free_symbols")
+    import c_ptr
+    type(c_ptr), intent(in) :: self
+    type(c_ptr) :: symbols
+  end function
+  ! Returns a CSetBasic of set_basic given by function_symbols
+  ! CWRAPPER_OUTPUT_TYPE basic_function_symbols(CSetBasic *symbols,
+  !                                             const basic self);
+  type(c_ptr) function basic_function_symbols(symbols,self) bind(c,name="basic_function_symbols")
+    import c_ptr
+    type(c_ptr) :: symbols
+    type(c_ptr), intent(in) :: self
+  end function
+  ! returns the hash of the Basic object
+  ! size_t basic_hash(const basic self);
+  integer(c_size_t) function basic_hash(self) bind(c,name="basic_hash")
+    import c_ptr, c_size_t
+    type(c_ptr), intent(in) :: self
+  end function
+  ! substitutes all the keys with their mapped values
+  ! in the given basic `e` and returns it through basic 's'
+  ! CWRAPPER_OUTPUT_TYPE basic_subs(basic s, const basic e,
+  !                                 const CMapBasicBasic *mapbb);
+  type(c_ptr) function basic_subs(s,e,mapbb) bind(c,name="basic_subs")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: e, mapbb
+  end function
+  ! substitutes a basic 'a' with another basic 'b',
+  ! in the given basic 'e' and returns it through basic 's'
+  ! CWRAPPER_OUTPUT_TYPE basic_subs2(basic s, const basic e, const basic a,
+  !                                  const basic b);
+  type(c_ptr) function basic_subs2(s,e,a,b) bind(c,name="basic_subs2")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: e, a ,b
+  end function
+
+  ! Assigns to s a FunctionSymbol with name described by c, with dependent
+  ! symbols arg
+  ! CWRAPPER_OUTPUT_TYPE function_symbol_set(basic s, const char *c,
+  !                                          const CVecBasic *arg);
+  type(c_ptr) function function_symbol_set(s,c,arg) bind(c,name="function_symbol_set")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+    type(c_ptr), intent(in) :: arg
+  end function
+  ! Returns the name of the given FunctionSymbol.
+  ! The caller is responsible to free the string with 'basic_str_free'
+  ! char *function_symbol_get_name(const basic b);
+  type(c_ptr) function function_symbol_get_name(b) bind(c,name="function_symbol_get_name")
+    import c_ptr
+    type(c_ptr), intent(in) :: b
+  end function
+  ! Returns the coefficient of x^n in b
+  ! CWRAPPER_OUTPUT_TYPE basic_coeff(basic c, const basic b, const basic x,
+  !                                  const basic n);
+  type(c_ptr) function basic_coeff(c,b,x,n) bind(c,name="basic_coeff")
+    import c_ptr
+    type(c_ptr) :: c
+    type(c_ptr), intent(in) :: b, x, n
+  end function
+
+
+  !
+  ! Wrapper for solve.h
+  !
+  ! Solves the system of linear equations given by sys
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_linsolve(CVecBasic *sol, const CVecBasic *sys,
+  !                                        const CVecBasic *sym);
+  type(c_ptr) function vecbasic_linsolve(sol,sys,sym) bind(c,name="vecbasic_linsolve")
+    import c_ptr
+    type(c_ptr) :: sol
+    type(c_ptr), intent(in) :: sys, sym
+  end function
+  ! Solves polynomial equation f if the set of solutions is finite
+  ! CWRAPPER_OUTPUT_TYPE basic_solve_poly(CSetBasic *r, const basic f,
+  !                                       const basic s);
+  type(c_ptr) function basic_solve_poly(r,f,s) bind(c,name="basic_solve_poly")
+    import c_ptr
+    type(c_ptr) :: r
+    type(c_ptr), intent(in) :: f, s
+  end function
+
+
+  !
+  ! Wrapper for ascii_art()
+  !
+  ! Returns a new char pointer to the ascii_art string
+  ! The caller is responsible to free the pointer using 'basic_str_free'.
+  ! char *ascii_art_str();
+  type(c_ptr) function ascii_art_str() bind(c,name="ascii_art_str")
+    import c_ptr
+  end function
+
+  !
+  ! Wrapper for ntheory
+  !
+
+
+  !
+  ! Wrapper for as_numer_denom
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_as_numer_denom(basic numer, basic denom,
+  !                                           const basic x);
+  type(c_ptr) function basic_as_numer_denom(numer,denom,x) bind(c,name="basic_as_numer_denom")
+    import c_ptr
+    type(c_ptr) :: numer, denom
+    type(c_ptr), intent(in) :: x
+  end function
+
+  !
+  ! Wrapper for LambdaRealDoubleVisitor
+  !
+  ! CLambdaRealDoubleVisitor *lambda_real_double_visitor_new();
+  type(c_ptr) function lambda_real_double_visitor_new() bind(c,name="lambda_real_double_visitor_new")
+    import c_ptr
+  end function
+  ! void lambda_real_double_visitor_init(CLambdaRealDoubleVisitor *self,
+  !                                      const CVecBasic *args,
+  !                                      const CVecBasic *exprs, int perform_cse);
+  subroutine lambda_real_double_visitor_init(self,args,exprs,perform_cse) bind(c,name="lambda_real_double_visitor_init")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: args
+    type(c_ptr), intent(in) :: exprs
+    integer(c_int), value :: perform_cse
+  end subroutine
+  ! void lambda_real_double_visitor_call(CLambdaRealDoubleVisitor *self,
+  !                                      double *const outs,
+  !                                      const double *const inps);
+  subroutine lambda_real_double_visitor_call(self,outs,inps) bind(c,name="lambda_real_double_visitor_call")
+    import c_ptr, c_double
+    type(c_ptr) :: self
+    real(c_double) :: outs(*)
+    real(c_double), intent(in) :: inps(*)
+  end subroutine
+  ! void lambda_real_double_visitor_free(CLambdaRealDoubleVisitor *self);
+  subroutine lambda_real_double_visitor_free(self) bind(c,name="lambda_real_double_visitor_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+
+  ! CWRAPPER_OUTPUT_TYPE basic_cse(CVecBasic *replacement_syms,
+  !                                CVecBasic *replacement_exprs,
+  !                                CVecBasic *reduced_exprs,
+  !                                const CVecBasic *exprs);
+  type(c_ptr) function basic_cse(replacement_syms,replacement_exprs,reduced_exprs,exprs) bind(c,name="basic_cse")
+    import c_ptr
+    type(c_ptr) :: replacement_syms
+    type(c_ptr) :: replacement_exprs
+    type(c_ptr) :: reduced_exprs
+    type(c_ptr), intent(in) :: exprs
+  end function
+
+  ! Print stacktrace on segfault
+  ! void symengine_print_stack_on_segfault();
   subroutine symengine_print_stack_on_segfault() bind(c,name="symengine_print_stack_on_segfault")
   end subroutine
 
   end interface
-
-contains
 
 end module

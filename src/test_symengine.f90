@@ -33,7 +33,9 @@ subroutine f(i)
 
   type(c_ptr) :: exception = c_null_ptr
 
-  print *, "Symengine version: "//c_char_ptr_to_fstring(symengine_version())
+  write(*,'(A)') c_char_ptr_to_fstring(ascii_art_str())
+  write(*,'(A)') "Symengine version: "//c_char_ptr_to_fstring(symengine_version())
+  write(*,*)
 
   call basic_new_stack(x)
   call basic_new_stack(y)
@@ -54,8 +56,11 @@ subroutine f(i)
 
   print *, c_associated(s), c_char_ptr_to_fstring(s)
 
-  exception = basic_parse(x,"3*x + 4*y + 5*a"//c_null_char)
-  s = basic_str(x)
+  exception = basic_parse(e,"3*x**2 + 4*y + 5*a"//c_null_char)
+  s = basic_str(e)
+  print *, "Result: ", c_char_ptr_to_fstring(s), c_associated(exception)
+  exception = basic_diff(s=e,expr=e,sym=x)
+  s = basic_str(e)
   print *, "Result: ", c_char_ptr_to_fstring(s), c_associated(exception)
 
   call basic_free_stack(x)
@@ -71,8 +76,17 @@ program small_test_driver
 
   use small_test
   use iso_c_binding
+  use symengine
+
   implicit none
 
+  type(basic) :: a, b
+
   call f(5_c_long)
+
+  call a%zero()
+  call b%zero()
+
+  print *, a == b
 
 end program
