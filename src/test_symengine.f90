@@ -76,17 +76,9 @@ program small_test_driver
 
   use small_test
   use iso_c_binding
-  use symengine
 
   implicit none
 
-  type(basic) :: a, b
-
   call f(5_c_long)
-
-  call a%zero()
-  call b%zero()
-
-  print *, a == b
 
 end program
