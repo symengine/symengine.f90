@@ -1,0 +1,1484 @@
+module symengine_cwrapper
+  
+  use iso_c_binding
+  implicit none
+  
+  public
+
+  ! Struct to hold the real and imaginary parts of std::complex<double>
+  ! extracted from basic
+  type, bind(c) :: dcomplex
+    real(c_double) :: re
+    real(c_double) :: im
+  end type
+
+
+  interface
+
+  ! void basic_new_stack(basic s);
+  subroutine basic_new_stack(s) bind(c,name="basic_new_stack")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_free_stack(basic s);
+  subroutine basic_free_stack(s) bind(c,name="basic_free_stack")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! basic_struct *basic_new_heap();
+  type(c_ptr) function basic_new_heap() bind(c,name="basic_new_heap")
+    import c_ptr
+  end function
+
+  ! void basic_free_heap(basic_struct *s);
+  subroutine basic_free_heap(s) bind(c,name="basic_free_heap")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! const char *symengine_version();
+  type(c_ptr) function symengine_version() bind(c,name="symengine_version")
+    import c_ptr
+  end function
+
+  !
+  ! Use these functions to get the commonly used constants as basic.
+  !
+
+  ! void basic_const_set(basic s, const char *c);
+  subroutine basic_const_set(s,c) bind(c,name="basic_const_set")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: c
+  end subroutine
+
+  ! void basic_const_zero(basic s);
+  subroutine basic_const_zero(s) bind(c,name="basic_const_zero")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_one(basic s);
+  subroutine basic_const_one(s) bind(c,name="basic_const_one")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_minus_one(basic s);
+  subroutine basic_const_minus_one(s) bind(c,name="basic_const_minus_one")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! void basic_const_I(basic s);
+  subroutine basic_const_I(s) bind(c,name="basic_const_I")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_pi(basic s);
+  subroutine basic_const_pi(s) bind(c,name="basic_const_pi")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_E(basic s);
+  subroutine basic_const_E(s) bind(c,name="basic_const_E")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_EulerGamma(basic s);
+  subroutine basic_const_EulerGamma(s) bind(c,name="basic_const_EulerGamma")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_Catalan(basic s);
+  subroutine basic_const_Catalan(s) bind(c,name="basic_const_Catalan")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! void basic_const_GoldenRatio(basic s);
+  subroutine basic_const_GoldenRatio(s) bind(c,name="basic_const_GoldenRatio")
+    import c_ptr
+    type(c_ptr), value :: s
+  end subroutine
+
+  !
+  ! Use these functions to get the use of positive, negative or unsigned
+  ! infinity as basic.
+  !
+  ! void basic_const_infinity(basic s);
+  subroutine basic_const_infinity(s) bind(c,name="basic_const_infinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  !
+  ! void basic_const_neginfinity(basic s);
+  subroutine basic_const_neginfinity(s) bind(c,name="basic_const_neginfinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  !
+  ! void basic_const_complex_infinity(basic s);
+  subroutine basic_const_complex_infinity(s) bind(c,name="basic_const_complex_infinity")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  !
+  ! Use this function to get the use of Nan as basic.
+  !
+  ! void basic_const_nan(basic s);
+  subroutine basic_const_nan(s) bind(c,name="basic_const_nan")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+
+  ! Assign value of b to a.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_assign(basic a, const basic b);
+  type(c_ptr) function basic_assign(a,b) bind(c,name="basic_assign")
+    import c_ptr
+    type(c_ptr) :: a
+    type(c_ptr), intent(in) :: b
+  end function
+
+  ! Parse str and assign value to b.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_parse(basic b, const char *str);
+  type(c_ptr) function basic_parse(b,str) bind(c,name="basic_parse")
+    import c_ptr, c_char
+    type(c_ptr) :: b
+    character(kind=c_char), intent(in) :: str(*)
+  end function
+
+  ! Parse str and assign value to b, set convert_xor to > 0 for default usage,
+  ! <= 0 otherwise.
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_parse2(basic b, const char *str, int convert_xor);
+  type(c_ptr) function basic_parse2(b,str,convert_xor) bind(c,name="basic_parse2")
+    import c_ptr, c_char, c_int
+    type(c_ptr) :: b
+    character(kind=c_char), intent(in) :: str(*)
+    integer(c_int), value :: convert_xor
+  end function
+
+  ! Returns the typeID of the basic struct
+  !
+  ! TypeID basic_get_type(const basic s);
+  type(c_ptr) function basic_get_type(s) bind(c,name="basic_get_type")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+
+  ! Returns the typeID of the class with the name c
+  !
+  ! TypeID basic_get_class_id(const char *c);
+  type(c_ptr) function basic_get_class_id(c) bind(c,name="basic_get_class_id")
+    import c_ptr, c_char
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+  ! Returns the class name of an object with the typeid `id`.
+  ! The caller is responsible to free the string with 'basic_str_free'
+  !
+  ! char *basic_get_class_from_id(TypeID id);
+  type(c_ptr) function basic_get_class_from_id(id) bind(c,name="basic_get_class_from_id")
+    import c_ptr
+    type(c_ptr), value :: id
+  end function
+
+
+  ! Assign to s, a symbol with string representation c.
+  ! This function creates a new SymEngine::Symbol from a copy of
+  ! the string in c, thus the caller is free to use c afterwards.
+  ! CWRAPPER_OUTPUT_TYPE symbol_set(basic s, const char *c);
+  type(c_ptr) function symbol_set(s,c) bind(c,name="symbol_set")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+  ! Returns 1 if s has value zero; 0 otherwise
+  ! int number_is_zero(const basic s);
+  integer(c_int) function number_is_zero(s) bind(c,name="number_is_zero")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s has negative value; 0 otherwise
+  ! int number_is_negative(const basic s);
+  integer(c_int) function number_is_negative(s) bind(c,name="number_is_negative")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s has positive value; 0 otherwise
+  ! int number_is_positive(const basic s);
+  integer(c_int) function number_is_positive(s) bind(c,name="number_is_positive")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns 1 if s is complex; 0 otherwise
+  ! int number_is_complex(const basic s);
+  integer(c_int) function number_is_complex(s) bind(c,name="number_is_complex")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+
+
+  ! Assign to s, a long.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_si(basic s, long i);
+  type(c_ptr) function integer_set_si(s,i) bind(c,name="integer_set_si")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i
+  end function
+  ! Assign to s, a ulong.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_ui(basic s, unsigned long i);
+  type(c_ptr) function integer_set_ui(s,i) bind(c,name="integer_set_ui")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i
+  end function
+#:if defined('HAVE_SYMENGINE_GMP')
+  ! Assign to s, a mpz_t.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_mpz(basic s, const mpz_t i);
+  type(c_ptr) function integer_set_mpz(s,i) bind(c,name="integer_set_mpz")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: i ! mpz_t
+  end function
+#:endif
+
+  ! Assign to s, an integer that has base 10 representation c.
+  ! CWRAPPER_OUTPUT_TYPE integer_set_str(basic s, const char *c);
+  type(c_ptr) function integer_set_str(s,c) bind(c,name="integer_set_str")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+  ! Assign to s, a real_double that has value of d.
+  ! CWRAPPER_OUTPUT_TYPE real_double_set_d(basic s, double d);
+  type(c_ptr) function real_double_set_d(s,d) bind(c,name="real_double_set_d")
+    import c_ptr, c_double
+    type(c_ptr) :: s
+    real(c_double), value :: d
+  end function
+  ! Returns double value of s.
+  ! double real_double_get_d(const basic s);
+  real(c_double) function real_double_get_d(s) bind(c,name="real_double_get_d")
+    import c_ptr, c_double
+    type(c_ptr), intent(in) :: s
+  end function
+
+
+  ! Assign to s, the real part of com
+  ! CWRAPPER_OUTPUT_TYPE complex_base_real_part(basic s, const basic com);
+  type(c_ptr) function complex_base_real_part(s,com) bind(c,name="complex_base_real_part")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: com
+  end function
+  ! Assign to s, the imaginary part of com
+  ! CWRAPPER_OUTPUT_TYPE complex_base_imaginary_part(basic s, const basic com);
+  type(c_ptr) function complex_base_imaginary_part(s,com) bind(c,name="complex_base_imaginary_part")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: com
+  end function
+
+  ! Returns signed long value of s.
+  ! signed long integer_get_si(const basic s);
+  integer(c_long) function integer_get_si(s) bind(c,name="integer_get_si")
+    import c_ptr, c_long
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Returns unsigned long value of s.
+  ! unsigned long integer_get_ui(const basic s);
+  integer(c_long) function integer_get_ui(s) bind(c,name="integer_get_ui")
+    import c_ptr, c_long
+    type(c_ptr), intent(in) :: s
+  end function
+#:if defined('HAVE_SYMENGINE_GMP')
+  ! Returns s as a mpz_t.
+  ! CWRAPPER_OUTPUT_TYPE integer_get_mpz(mpz_t a, const basic s);
+  type(c_ptr) function integer_get_mpz(a,s) bind(c,name="integer_get_mpz")
+    import c_ptr
+    type(c_ptr) :: a
+    type(c_ptr), intent(in) :: s
+  end function
+#:endif
+
+
+  ! Assign to s, a rational i/j.
+  ! Returns SYMENGINE_RUNTIME_ERROR if either i or j is not an integer.
+  ! CWRAPPER_OUTPUT_TYPE rational_set(basic s, const basic i, const basic j);
+  type(c_ptr) function rational_set(s,i,j) bind(c,name="rational_set")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: i, j
+  end function
+  ! Assign to s, a rational i/j, where i and j are signed longs.
+  ! CWRAPPER_OUTPUT_TYPE rational_set_si(basic s, long i, long j);
+  type(c_ptr) function rational_set_si(s,i,j) bind(c,name="rational_set_si")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i, j
+  end function
+  ! Assign to s, a rational i/j, where i and j are unsigned longs.
+  ! CWRAPPER_OUTPUT_TYPE rational_set_ui(basic s, unsigned long i, unsigned long j);
+  type(c_ptr) function rational_set_ui(s,i,j) bind(c,name="rational_set_ui")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: i, j
+  end function  
+#:if defined('HAVE_SYMENGINE_GMP')
+  ! Returns s as a mpq_t.
+  ! CWRAPPER_OUTPUT_TYPE rational_get_mpq(mpq_t a, const basic s);
+  type(c_ptr) function rational_get_mpq(a,s) bind(c,name="rational_get_mpq")
+    import c_ptr
+    type(c_ptr) :: a ! mpq_t
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Assign to s, a rational i, where is of type mpq_t.
+  ! CWRAPPER_OUTPUT_TYPE rational_set_mpq(basic s, const mpq_t i);
+  type(c_ptr) function rational_set_mpq(s,i) bind(c,name="rational_set_mpq")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: i ! mpq_t
+  end function
+#:endif
+
+
+  ! Assign to s, a complex re + i*im.
+  ! CWRAPPER_OUTPUT_TYPE complex_set(basic s, const basic re, const basic im);
+  type(c_ptr) function complex_set(s,re,im) bind(c,name="complex_set")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: re, im
+  end function
+  ! Assign to s, a complex re + i*im, where re and im are rationals.
+  ! CWRAPPER_OUTPUT_TYPE complex_set_rat(basic s, const basic re, const basic im);
+  type(c_ptr) function complex_set_rat(s,re,im) bind(c,name="complex_set_rat")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: re, im
+  end function
+#:if defined('HAVE_SYMENGINE_GMP')
+  ! Assign to s, a complex re + i*im, where re and im are of type mpq.
+  ! CWRAPPER_OUTPUT_TYPE complex_set_mpq(basic s, const mpq_t re, const mpq_t im);
+  type(c_ptr) function complex_set_mpq(s,re,im) bind(c,name="complex_set_mpq")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: re, im
+  end function
+#:endif
+
+  ! Extract the real and imaginary doubles from the std::complex<double> stored
+  ! in basic
+  ! dcomplex complex_double_get(const basic s);
+  type(dcomplex) function complex_double_get(s) bind(c,name="complex_double_get")
+    import dcomplex, c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+
+  ! Assigns s = a + b.
+  ! CWRAPPER_OUTPUT_TYPE basic_add(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_add(s,a,b) bind(c,name="basic_add")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a - b.
+  ! CWRAPPER_OUTPUT_TYPE basic_sub(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_sub(s,a,b) bind(c,name="basic_sub")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a * b.
+  ! CWRAPPER_OUTPUT_TYPE basic_mul(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_mul(s,a,b) bind(c,name="basic_mul")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a / b.
+  ! CWRAPPER_OUTPUT_TYPE basic_div(basic s, const basic a, const basic b);
+  type(c_ptr) function basic_div(s,a,b) bind(c,name="basic_div")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assigns s = a ** b.
+  ! CWRAPPER_OUTPUT_TYPE basic_pow(basic s, const basic a, const basic 
+  type(c_ptr) function basic_pow(s,a,b) bind(c,name="basic_pow")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Assign to s, derivative of expr with respect to sym.
+  ! Returns SYMENGINE_RUNTIME_ERROR if sym is not a symbol.
+  ! CWRAPPER_OUTPUT_TYPE basic_diff(basic s, const basic expr, const basic sym);
+  type(c_ptr) function basic_diff(s,expr,sym) bind(c,name="basic_diff")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: expr,sym
+  end function
+
+  ! Returns 1 if both basic are equal, 0 if not
+  ! int basic_eq(const basic a, const basic b);
+  integer(c_int) function basic_eq(a,b) bind(c,name="basic_eq")
+    import c_int, c_ptr
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Returns 1 if both basic are not equal, 0 if they are
+  ! int basic_neq(const basic a, const basic b);
+  integer(c_int) function basic_neq(a,b) bind(c,name="basic_neq")
+    import c_int, c_ptr
+    type(c_ptr), intent(in) :: a, b
+  end function
+
+
+#:def INTERFACE_ONE_ARG_FUNC(func)
+  type(c_ptr) function basic_${func}$(s,a) bind(c,name="basic_${func}$")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a
+  end function
+#:enddef INTERFACE_ONE_ARG_FUNC
+
+@:INTERFACE_ONE_ARG_FUNC(expand)
+@:INTERFACE_ONE_ARG_FUNC(neg)
+@:INTERFACE_ONE_ARG_FUNC(abs)
+@:INTERFACE_ONE_ARG_FUNC(erf)
+@:INTERFACE_ONE_ARG_FUNC(erfc)
+@:INTERFACE_ONE_ARG_FUNC(sin)
+@:INTERFACE_ONE_ARG_FUNC(cos)
+@:INTERFACE_ONE_ARG_FUNC(tan)
+@:INTERFACE_ONE_ARG_FUNC(csc)
+@:INTERFACE_ONE_ARG_FUNC(sec)
+@:INTERFACE_ONE_ARG_FUNC(cot)
+@:INTERFACE_ONE_ARG_FUNC(asin)
+@:INTERFACE_ONE_ARG_FUNC(acos)
+@:INTERFACE_ONE_ARG_FUNC(asec)
+@:INTERFACE_ONE_ARG_FUNC(acsc)
+@:INTERFACE_ONE_ARG_FUNC(atan)
+@:INTERFACE_ONE_ARG_FUNC(acot)
+@:INTERFACE_ONE_ARG_FUNC(sinh)
+@:INTERFACE_ONE_ARG_FUNC(cosh)
+@:INTERFACE_ONE_ARG_FUNC(tanh)
+@:INTERFACE_ONE_ARG_FUNC(csch)
+@:INTERFACE_ONE_ARG_FUNC(sech)
+@:INTERFACE_ONE_ARG_FUNC(coth)
+@:INTERFACE_ONE_ARG_FUNC(asinh)
+@:INTERFACE_ONE_ARG_FUNC(acosh)
+@:INTERFACE_ONE_ARG_FUNC(asech)
+@:INTERFACE_ONE_ARG_FUNC(acsch)
+@:INTERFACE_ONE_ARG_FUNC(atanh)
+@:INTERFACE_ONE_ARG_FUNC(acoth)
+@:INTERFACE_ONE_ARG_FUNC(lambertw)
+@:INTERFACE_ONE_ARG_FUNC(zeta)
+@:INTERFACE_ONE_ARG_FUNC(dirichlet_eta)
+@:INTERFACE_ONE_ARG_FUNC(gamma)
+@:INTERFACE_ONE_ARG_FUNC(loggamma)
+@:INTERFACE_ONE_ARG_FUNC(sqrt)
+@:INTERFACE_ONE_ARG_FUNC(cbrt)
+@:INTERFACE_ONE_ARG_FUNC(exp)
+@:INTERFACE_ONE_ARG_FUNC(log)
+
+
+#:def INTERFACE_TWO_ARG_FUNC(func)
+  type(c_ptr) function basic_${func}$(s,a,b) bind(c,name="basic_${func}$")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+#:enddef INTERFACE_TWO_ARG_FUNC
+
+@:INTERFACE_TWO_ARG_FUNC(atan2)
+@:INTERFACE_TWO_ARG_FUNC(kronecker_delta)
+@:INTERFACE_TWO_ARG_FUNC(lowergamma)
+@:INTERFACE_TWO_ARG_FUNC(uppergamma)
+@:INTERFACE_TWO_ARG_FUNC(beta)
+@:INTERFACE_TWO_ARG_FUNC(polygamma)
+
+#:def INTERFACE_STR_CONVERSION(str)
+  type(c_ptr) function basic_${str}$(s) bind(c,name="basic_${str}$")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+#:enddef INTERFACE_STR_CONVERSION
+
+  ! Returns a new char pointer to the string representation of s.
+  ! char *basic_str(const basic s);
+@:INTERFACE_STR_CONVERSION(str)
+  ! Returns a new char pointer to the string representation of s.
+  ! Compatible with Julia
+  ! char *basic_str_julia(const basic s);
+@:INTERFACE_STR_CONVERSION(str_julia)
+  ! Printing mathml
+  ! char *basic_str_mathml(const basic s);
+@:INTERFACE_STR_CONVERSION(str_mathml)
+  ! Printing latex string
+  ! char *basic_str_latex(const basic s);
+@:INTERFACE_STR_CONVERSION(str_latex)
+  ! Printing C code
+  ! char *basic_str_ccode(const basic s);
+@:INTERFACE_STR_CONVERSION(str_ccode)
+  ! Printing JavaScript code
+  ! char *basic_str_jscode(const basic s);
+@:INTERFACE_STR_CONVERSION(str_jscode)
+  ! Frees the string s
+  ! void basic_str_free(char *s);
+  subroutine basic_str_free(s) bind(c,name="basic_str_free")
+    import c_ptr
+    type(c_ptr), value :: s
+  end subroutine
+
+  ! Returns 1 if a specific component is installed and 0 if not.
+  ! Component can be "mpfr", "flint", "arb", "mpc", "ecm", "primesieve",
+  ! "piranha", "boost", "pthread", "llvm" or "llvm_long_double" (all in
+  ! lowercase).
+  ! This function, using string comparison, was implemented for particular
+  ! libraries that do not provide header access (i.e. SymEngine.jl
+  ! and other related shared libraries).
+  ! Avoid usage while having access to the headers. Instead simply use
+  ! HAVE_SYMENGINE_MPFR and other related macros directly.
+  integer(c_int) function symengine_have_component(c) bind(c,name="symengine_have_component")
+    import c_int, c_char
+    character(kind=c_char), intent(in) :: c(*)
+  end function
+
+#:def INTERFACE_IS_A(type)
+  integer(c_int) function is_a_${type}$(s) bind(c,name="is_a_${type}$")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: s
+  end function
+#:enddef INTERFACE_IS_A
+
+@:INTERFACE_IS_A(Number)
+@:INTERFACE_IS_A(Integer)
+@:INTERFACE_IS_A(Rational)
+@:INTERFACE_IS_A(Symbol)
+@:INTERFACE_IS_A(Complex)
+@:INTERFACE_IS_A(RealDouble)
+@:INTERFACE_IS_A(ComplexDouble)
+@:INTERFACE_IS_A(RealMPFR)
+@:INTERFACE_IS_A(ComplexMPFR)
+
+  !
+  ! Wrapper for vec_basic
+  !
+
+  ! CVecBasic *vecbasic_new();
+  type(c_ptr) function vecbasic_new() bind(c,name="vecbasic_new")
+    import c_ptr
+  end function
+  ! void vecbasic_free(CVecBasic *self);
+  subroutine vecbasic_free(self) bind(c,name="vecbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_push_back(CVecBasic *self, const basic value);
+  type(c_ptr) function vecbasic_push_back(self,value) bind(c,name="vecbasic_push_back")
+    import c_ptr
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: value
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_get(CVecBasic *self, size_t n, basic result);
+  type(c_ptr) function vecbasic_get(self,n,result) bind(c,name="vecbasic_get")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+    type(c_ptr) :: result
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_set(CVecBasic *self, size_t n, const basic s);
+  type(c_ptr) function vecbasic_set(self,n,s) bind(c,name="vecbasic_set")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+    type(c_ptr), intent(in) :: s
+  end function
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_erase(CVecBasic *self, size_t n);
+  type(c_ptr) function vecbasic_erase(self,n) bind(c,name="vecbasic_erase")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+    integer(c_size_t), value :: n
+  end function
+  ! size_t vecbasic_size(CVecBasic *self);
+  integer(c_size_t) function vecbasic_size(self) bind(c,name="vecbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  ! Assigns to s the max of the provided args.
+  ! CWRAPPER_OUTPUT_TYPE basic_max(basic s, CVecBasic *d);
+  type(c_ptr) function basic_max(s,d) bind(c,name="basic_max")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: d
+  end function
+  ! Assigns to s the min of the provided args.
+  ! CWRAPPER_OUTPUT_TYPE basic_min(basic s, CVecBasic *d);
+  type(c_ptr) function basic_min(s,d) bind(c,name="basic_min")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr) :: d
+  end function
+
+
+  !
+  ! Wrappers for Matrices
+  !
+
+  ! CDenseMatrix *dense_matrix_new();
+  type(c_ptr) function dense_matrix_new() bind(c,name="dense_matrix_new")
+    import c_ptr
+  end function
+  ! CSparseMatrix *sparse_matrix_new();
+  type(c_ptr) function sparse_matrix_new() bind(c,name="sparse_matrix_new")
+    import c_ptr
+  end function
+
+  ! void dense_matrix_free(CDenseMatrix *self);
+  subroutine dense_matrix_free(self) bind(c,name="dense_matrix_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+  ! Return a DenseMatrix with l's elements
+  ! CDenseMatrix *dense_matrix_new_vec(unsigned rows, unsigned cols, CVecBasic *l);
+  type(c_ptr) function dense_matrix_new_vec(rows,cols,l) bind(c,name="dense_matrix_new_vec")
+    import c_ptr, c_int
+    integer(c_int), value :: rows, cols
+    type(c_ptr) :: l
+  end function
+  ! Return a DenseMatrix with r rows and c columns
+  ! CDenseMatrix *dense_matrix_new_rows_cols(unsigned r, unsigned c);
+  type(c_ptr) function dense_matrix_new_rows_cols(r,c) bind(c,name="dense_matrix_new_rows_cols")
+    import c_ptr, c_int
+    integer(c_int), value :: r, c
+  end function
+  ! void sparse_matrix_free(CSparseMatrix *self);
+  subroutine sparse_matrix_free(self) bind(c,name="sparse_matrix_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+  ! Assign to s, a DenseMatrix with value d
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_set(CDenseMatrix *s, const CDenseMatrix *d);
+  type(c_ptr) function dense_matrix_set(s,d) bind(c,name="dense_matrix_set")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: d
+  end function
+
+  ! Return a string representation of s.
+  ! The caller is responsible to free the string with 'basic_str_free'
+  ! char *dense_matrix_str(const CDenseMatrix *s);
+  type(c_ptr) function dense_matrix_str(s) bind(c,name="dense_matrix_str")
+    import c_ptr
+    type(c_ptr), intent(in) :: s
+  end function
+
+  ! Resize mat to rxc
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_rows_cols(CDenseMatrix *mat, unsigned r,
+  !                                             unsigned c);
+  type(c_ptr) function dense_matrix_rows_cols(mat,r,c) bind(c,name="dense_matrix_rows_cols")
+    import c_ptr, c_int
+    type(c_ptr) :: mat
+    integer(c_int), value :: r, c
+  end function
+  ! Assign to s, mat[r][c]
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_get_basic(basic s, const CDenseMatrix *mat,
+  !                                             unsigned long int r,
+  !                                             unsigned long int c);
+  type(c_ptr) function dense_matrix_get_basic(s,mat,r,c) bind(c,name="dense_matrix_get_basic")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+    integer(c_long), value :: r, c
+  end function
+  ! Assign s to mat[r][c]
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_set_basic(CDenseMatrix *mat,
+  !                                             unsigned long int r,
+  !                                             unsigned long int c, basic s);
+  type(c_ptr) function dense_matrix_set_basic(mat,r,c,s) bind(c,name="dense_matrix_set_basic")
+    import c_ptr, c_long
+    type(c_ptr) :: mat
+    integer(c_long), value :: r, c
+    type(c_ptr) :: s
+  end function
+  ! Assign to s, mat[r][c]
+  ! CWRAPPER_OUTPUT_TYPE sparse_matrix_get_basic(basic s, const CSparseMatrix *mat,
+  !                                              unsigned long int r,
+  !                                              unsigned long int c);
+  type(c_ptr) function sparse_matrix_get_basic(s,mat,r,c) bind(c,name="sparse_matrix_get_basic")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+    integer(c_long), value :: r, c
+  end function
+  ! Assign s to mat[r][c]
+  ! CWRAPPER_OUTPUT_TYPE sparse_matrix_set_basic(CSparseMatrix *mat,
+  !                                              unsigned long int r,
+  !                                              unsigned long int c, basic s);
+  type(c_ptr) function sparse_matrix_set_basic(mat,r,c,s) bind(c,name="sparse_matrix_set_basic")
+    import c_ptr, c_long
+    type(c_ptr) :: mat
+    integer(c_long), value :: r, c
+    type(c_ptr) :: s
+  end function
+  ! Assign to s, determinent of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_det(basic s, const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_det(s,mat) bind(c,name="dense_matrix_det")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to s, a DenseMatrix which is the inverse of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_inv(CDenseMatrix *s, const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_inv(s,mat) bind(c,name="dense_matrix_inv")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to s, a DenseMatrix which is the transpose of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_transpose(CDenseMatrix *s,
+  !                                             const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_transpose(s,mat) bind(c,name="dense_matrix_transpose")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+  end function
+
+  ! Assign to s, a SubMatrix of mat, starting with [r1, r2] until [r2, c2], with
+  ! step sizes [r, c]
+  ! CWRAPPER_OUTPUT_TYPE
+  ! dense_matrix_submatrix(CDenseMatrix *s, const CDenseMatrix *mat,
+  !                        unsigned long int r1, unsigned long int c1,
+  !                        unsigned long int r2, unsigned long int c2,
+  !                        unsigned long int r, unsigned long int c);
+  type(c_ptr) function dense_matrix_submatrix(s,mat,r1,c1,r2,c2,r,c) bind(c,name="dense_matrix_submatrix")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: mat
+    integer(c_long), value :: r1, c1, r2, c2, r, c
+  end function
+  ! The matrix which results from joining the rows of A and B
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_row_join(CDenseMatrix *A,
+  !                                            const CDenseMatrix *B);
+  type(c_ptr) function dense_matrix_row_join(A,B) bind(c,name="dense_matrix_row_join")
+    import c_ptr
+    type(c_ptr) :: A
+    type(c_ptr), intent(in) :: B
+  end function
+  ! The matrix which results from joining the columns of A and B
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_col_join(CDenseMatrix *A,
+  !                                            const CDenseMatrix *B);
+  type(c_ptr) function dense_matrix_col_join(A,B) bind(c,name="dense_matrix_col_join")
+    import c_ptr
+    type(c_ptr) :: A
+    type(c_ptr), intent(in) :: B
+  end function
+  ! Delete a specific row of the matrix
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_row_del(CDenseMatrix *C, unsigned k);
+  type(c_ptr) function dense_matrix_row_del(C,k) bind(c,name="dense_matrix_row_del")
+    import c_ptr, c_int
+    type(c_ptr) :: C
+    integer(c_int), value :: k
+  end function
+  ! Delete a specific column of the matrix
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_col_del(CDenseMatrix *C, unsigned k);
+  type(c_ptr) function dense_matrix_col_del(C,k) bind(c,name="dense_matrix_col_del")
+    import c_ptr, c_int
+    type(c_ptr) :: C
+    integer(c_int), value :: k
+  end function
+  ! 
+  ! Return the number of columns of s
+  ! unsigned long int dense_matrix_cols(const CDenseMatrix *s);
+  integer(c_long) function dense_matrix_cols(s) bind(c,name="dense_matrix_cols")
+    import c_ptr, c_long
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Return the number of rows of s
+  ! unsigned long int dense_matrix_rows(const CDenseMatrix *s);
+  integer(c_long) function dense_matrix_rows(s) bind(c,name="dense_matrix_rows")
+    import c_ptr, c_long
+    type(c_ptr), intent(in) :: s
+  end function
+  ! Assign to s, the addition of matA and matB
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_add_matrix(CDenseMatrix *s,
+  !                                              const CDenseMatrix *matA,
+  !                                              const CDenseMatrix *matB);
+  type(c_ptr) function dense_matrix_add_matrix(s,matA,matB) bind(c,name="dense_matrix_add_matrix")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: matA, matB
+  end function
+  ! Assign to s, the matrix multiplication of matA and matB
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_mul_matrix(CDenseMatrix *s,
+  !                                              const CDenseMatrix *matA,
+  !                                              const CDenseMatrix *matB);
+  type(c_ptr) function dense_matrix_mul_matrix(s,matA,matB) bind(c,name="dense_matrix_mul_matrix")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: matA, matB
+  end function
+  ! Assign to s, the addition of scalar b to matrix matA
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_add_scalar(CDenseMatrix *s,
+  !                                              const CDenseMatrix *matA,
+  !                                              const basic b);
+  type(c_ptr) function dense_matrix_add_scalar(s,matA,b) bind(c,name="dense_matrix_add_scalar")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: matA, b
+  end function
+  ! Assign to s, the multiplication of scalar b to matrix matA
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_mul_scalar(CDenseMatrix *s,
+  !                                              const CDenseMatrix *matA,
+  !                                              const basic b);
+  type(c_ptr) function dense_matrix_mul_scalar(s,matA,b) bind(c,name="dense_matrix_mul_scalar")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: matA, b
+  end function
+  ! Assign to l and u, LU factorization of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_LU(CDenseMatrix *l, CDenseMatrix *u,
+  !                                      const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_LU(l,u,mat) bind(c,name="dense_matrix_LU")
+    import c_ptr
+    type(c_ptr) :: l, u
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to l and d, LDL factorization of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_LDL(CDenseMatrix *l, CDenseMatrix *d,
+  !                                       const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_LDL(l,d,mat) bind(c,name="dense_matrix_LDL")
+    import c_ptr
+    type(c_ptr) :: l, d
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to lu, fraction free LU factorization of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_FFLU(CDenseMatrix *lu,
+  !                                        const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_FFLU(lu,mat) bind(c,name="dense_matrix_FFLU")
+    import c_ptr
+    type(c_ptr) :: lu
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to l, d and u, FFLDU factorization of mat
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_FFLDU(CDenseMatrix *l, CDenseMatrix *d,
+  !                                         CDenseMatrix *u,
+  !                                         const CDenseMatrix *mat);
+  type(c_ptr) function dense_matrix_FFLDU(l,d,u,mat) bind(c,name="dense_matrix_FFLDU")
+    import c_ptr
+    type(c_ptr) :: l, d, u
+    type(c_ptr), intent(in) :: mat
+  end function
+  ! Assign to x, solution to A x = b
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_LU_solve(CDenseMatrix *x,
+  !                                            const CDenseMatrix *A,
+  !                                            const CDenseMatrix *b);
+  type(c_ptr) function dense_matrix_LU_solve(x,A,b) bind(c,name="dense_matrix_LU_solve")
+    import c_ptr
+    type(c_ptr) :: x
+    type(c_ptr), intent(in) :: A, b
+  end function
+
+
+  ! Assign to s, a matrix of ones of size rxc
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_ones(CDenseMatrix *s, unsigned long int r,
+  !                                        unsigned long int c);
+  type(c_ptr) function dense_matrix_ones(s,r,c) bind(c,name="dense_matrix_ones")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: r, c
+  end function
+  ! Assign to s, a matrix of zeros of size rxc
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_zeros(CDenseMatrix *s, unsigned long int r,
+  !                                         unsigned long int c);
+  type(c_ptr) function dense_matrix_zeros(s,r,c) bind(c,name="dense_matrix_zeros")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: r, c
+  end function
+  ! Assign to s, a diagonal matrix with a diagonal at offset k, with elements in
+  ! d
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_diag(CDenseMatrix *s, CVecBasic *d,
+  !                                        long int k);
+  type(c_ptr) function dense_matrix_diag(s,d,k) bind(c,name="dense_matrix_diag")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr) :: d
+    integer(c_long), value :: k
+  end function
+  ! Assign to s, a matrix of size NxM, with diagonal of 1s at offset k
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_eye(CDenseMatrix *s, unsigned long int N,
+  !                                       unsigned long int M, int k);
+  type(c_ptr) function dense_matrix_eye(s,N,M,k) bind(c,name="dense_matrix_eye")
+    import c_ptr, c_long, c_int
+    type(c_ptr) :: s
+    integer(c_long) :: N, M
+    integer(c_int) :: k
+  end function
+  ! Assign to result, elementwise derivative of A with respect to x. Returns 0
+  ! on success.
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_diff(CDenseMatrix *result,
+  !                                        const CDenseMatrix *A, basic const x);
+  type(c_ptr) function dense_matrix_diff(result,A,x) bind(c,name="dense_matrix_diff")
+    import c_ptr
+    type(c_ptr) :: result
+    type(c_ptr), intent(in) :: A
+    type(c_ptr) :: x
+  end function
+  ! Assign to result, jacobian of A with respect to x. Returns 0 on success.
+  ! CWRAPPER_OUTPUT_TYPE dense_matrix_jacobian(CDenseMatrix *result,
+  !                                            const CDenseMatrix *A,
+  !                                            const CDenseMatrix *x);
+  type(c_ptr) function dense_matrix_jacobian(result,A,x) bind(c,name="dense_matrix_jacobian")
+    import c_ptr
+    type(c_ptr) :: result
+    type(c_ptr), intent(in) :: A
+    type(c_ptr) :: x
+  end function
+
+
+  ! Assign to s, a CSRMatrix
+  ! void sparse_matrix_init(CSparseMatrix *s);
+  subroutine sparse_matrix_init(s) bind(c,name="sparse_matrix_init")
+    import c_ptr
+    type(c_ptr) :: s
+  end subroutine
+  ! Assign to s, a CSRMatrix with r rows and c columns
+  ! void sparse_matrix_rows_cols(CSparseMatrix *s, unsigned long int r,
+  !                              unsigned long int c);
+  subroutine sparse_matrix_rows_cols(s,r,c) bind(c,name="sparse_matrix_rows_cols")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long) :: r, c
+  end subroutine
+  ! Return a string representation of s
+  ! char *sparse_matrix_str(const CSparseMatrix *s);
+  type(c_ptr) function sparse_matrix_str(s) bind(c,name="sparse_matrix_str")
+    import c_ptr
+    type(c_ptr) :: s
+  end function
+
+  ! Return 1 if c is a DenseMatrix, 0 if not.
+  ! int is_a_DenseMatrix(const CDenseMatrix *c);
+  integer(c_int) function is_a_DenseMatrix(c) bind(c,name="is_a_DenseMatrix")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: c
+  end function
+  ! Return 1 if c is a SparseMatrix, 0 if not.
+  ! int is_a_SparseMatrix(const CSparseMatrix *c);
+  integer(c_int) function is_a_SparseMatrix(c) bind(c,name="is_a_SparseMatrix")
+    import c_ptr, c_int
+    type(c_ptr), intent(in) :: c
+  end function
+
+  ! Return 1 if lhs == rhs, 0 if not
+  ! int dense_matrix_eq(CDenseMatrix *lhs, CDenseMatrix *rhs);
+  integer(c_int) function dense_matrix_eq(lhs,rhs) bind(c,name="dense_matrix_eq")
+    import c_ptr, c_int
+    type(c_ptr) :: lhs, rhs
+  end function
+  ! Return 1 if lhs == rhs, 0 if not
+  ! int sparse_matrix_eq(CSparseMatrix *lhs, CSparseMatrix *rhs);
+  integer(c_int) function sparse_matrix_eq(lhs,rhs) bind(c,name="sparse_matrix_eq")
+    import c_ptr, c_int
+    type(c_ptr) :: lhs, rhs
+  end function
+
+  !
+  ! Wrapper for set_basic
+  ! 
+  ! typedef struct CSetBasic CSetBasic;
+  ! 
+  ! CSetBasic *setbasic_new();
+  type(c_ptr) function setbasic_new() bind(c,name="setbasic_new")
+    import c_ptr
+  end function
+  ! void setbasic_free(CSetBasic *self);
+  subroutine setbasic_free(self) bind(c,name="setbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! Returns 1 if insert is successful and 0 if set already contains the value
+  ! and insertion is unsuccessful
+  ! int setbasic_insert(CSetBasic *self, const basic value);
+  integer(c_int) function setbasic_insert(self,value) bind(c,name="setbasic_insert")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: value
+  end function
+  ! void setbasic_get(CSetBasic *self, int n, basic result);
+  subroutine setbasic_get(self,n,result) bind(c,name="setbasic_get")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    integer(c_int), intent(in) :: n
+    type(c_ptr) :: result
+  end subroutine
+  ! Returns 1 if value is found in the set and 0 if not
+  ! int setbasic_find(CSetBasic *self, basic value);
+  integer(c_int) function setbasic_find(self,value) bind(c,name="setbasic_find")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr) :: value
+  end function
+  ! Returns 1 if value was erased from the set and 0 if not
+  ! int setbasic_erase(CSetBasic *self, const basic value);
+  ! size_t setbasic_size(CSetBasic *self);
+  integer(c_size_t) function setbasic_size(self) bind(c,name="setbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  !
+  ! Wrapper for map_basic_basic
+  !
+  ! typedef struct CMapBasicBasic CMapBasicBasic;
+  ! 
+  ! CMapBasicBasic *mapbasicbasic_new();
+  type(c_ptr) function mapbasicbasic_new() bind(c,name="mapbasicbasic_new")
+    import c_ptr
+  end function
+  ! void mapbasicbasic_free(CMapBasicBasic *self);
+  subroutine mapbasicbasic_free(self) bind(c,name="mapbasicbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+  ! void mapbasicbasic_insert(CMapBasicBasic *self, const basic key,
+  !                           const basic mapped);
+  subroutine mapbasicbasic_insert(self,key,mapped) bind(c,name="mapbasicbasic_free")
+    import c_ptr
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: key, mapped
+  end subroutine
+  ! Returns 1 if such a key exists in the map and get is successful, 0 if not
+  ! int mapbasicbasic_get(CMapBasicBasic *self, const basic key, basic mapped);
+  integer(c_int) function mapbasicbasic_get(self,key,mapped) bind(c,name="mapbasicbasic_get")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: key, mapped    
+  end function
+  ! size_t mapbasicbasic_size(CMapBasicBasic *self);
+  integer(c_size_t) function mapbasicbasic_size(self) bind(c,name="mapbasicbasic_size")
+    import c_ptr, c_size_t
+    type(c_ptr) :: self
+  end function
+
+  ! --------------------------------------------
+
+
+  ! Returns a CVecBasic of vec_basic given by get_args
+  ! CWRAPPER_OUTPUT_TYPE basic_get_args(const basic self, CVecBasic *args);
+  type(c_ptr) function basic_get_args(self,args) bind(c,name="basic_get_args")
+    import c_ptr
+    type(c_ptr), intent(in) :: self
+    type(c_ptr) :: args
+  end function
+  ! Returns a CSetBasic of set_basic given by free_symbols
+  ! CWRAPPER_OUTPUT_TYPE basic_free_symbols(const basic self, CSetBasic *symbols);
+  type(c_ptr) function basic_free_symbols(self,symbols) bind(c,name="basic_free_symbols")
+    import c_ptr
+    type(c_ptr), intent(in) :: self
+    type(c_ptr) :: symbols
+  end function
+  ! Returns a CSetBasic of set_basic given by function_symbols
+  ! CWRAPPER_OUTPUT_TYPE basic_function_symbols(CSetBasic *symbols,
+  !                                             const basic self);
+  type(c_ptr) function basic_function_symbols(symbols,self) bind(c,name="basic_function_symbols")
+    import c_ptr
+    type(c_ptr) :: symbols
+    type(c_ptr), intent(in) :: self
+  end function
+  ! returns the hash of the Basic object
+  ! size_t basic_hash(const basic self);
+  integer(c_size_t) function basic_hash(self) bind(c,name="basic_hash")
+    import c_ptr, c_size_t
+    type(c_ptr), intent(in) :: self
+  end function
+  ! substitutes all the keys with their mapped values
+  ! in the given basic `e` and returns it through basic 's'
+  ! CWRAPPER_OUTPUT_TYPE basic_subs(basic s, const basic e,
+  !                                 const CMapBasicBasic *mapbb);
+  type(c_ptr) function basic_subs(s,e,mapbb) bind(c,name="basic_subs")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: e, mapbb
+  end function
+  ! substitutes a basic 'a' with another basic 'b',
+  ! in the given basic 'e' and returns it through basic 's'
+  ! CWRAPPER_OUTPUT_TYPE basic_subs2(basic s, const basic e, const basic a,
+  !                                  const basic b);
+  type(c_ptr) function basic_subs2(s,e,a,b) bind(c,name="basic_subs2")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: e, a ,b
+  end function
+
+  ! Assigns to s a FunctionSymbol with name described by c, with dependent
+  ! symbols arg
+  ! CWRAPPER_OUTPUT_TYPE function_symbol_set(basic s, const char *c,
+  !                                          const CVecBasic *arg);
+  type(c_ptr) function function_symbol_set(s,c,arg) bind(c,name="function_symbol_set")
+    import c_ptr, c_char
+    type(c_ptr) :: s
+    character(kind=c_char), intent(in) :: c(*)
+    type(c_ptr), intent(in) :: arg
+  end function
+  ! Returns the name of the given FunctionSymbol.
+  ! The caller is responsible to free the string with 'basic_str_free'
+  ! char *function_symbol_get_name(const basic b);
+  type(c_ptr) function function_symbol_get_name(b) bind(c,name="function_symbol_get_name")
+    import c_ptr
+    type(c_ptr), intent(in) :: b
+  end function
+  ! Returns the coefficient of x^n in b
+  ! CWRAPPER_OUTPUT_TYPE basic_coeff(basic c, const basic b, const basic x,
+  !                                  const basic n);
+  type(c_ptr) function basic_coeff(c,b,x,n) bind(c,name="basic_coeff")
+    import c_ptr
+    type(c_ptr) :: c
+    type(c_ptr), intent(in) :: b, x, n
+  end function
+
+
+  !
+  ! Wrapper for solve.h
+  !
+  ! Solves the system of linear equations given by sys
+  ! CWRAPPER_OUTPUT_TYPE vecbasic_linsolve(CVecBasic *sol, const CVecBasic *sys,
+  !                                        const CVecBasic *sym);
+  type(c_ptr) function vecbasic_linsolve(sol,sys,sym) bind(c,name="vecbasic_linsolve")
+    import c_ptr
+    type(c_ptr) :: sol
+    type(c_ptr), intent(in) :: sys, sym
+  end function
+  ! Solves polynomial equation f if the set of solutions is finite
+  ! CWRAPPER_OUTPUT_TYPE basic_solve_poly(CSetBasic *r, const basic f,
+  !                                       const basic s);
+  type(c_ptr) function basic_solve_poly(r,f,s) bind(c,name="basic_solve_poly")
+    import c_ptr
+    type(c_ptr) :: r
+    type(c_ptr), intent(in) :: f, s
+  end function
+
+
+  !
+  ! Wrapper for ascii_art()
+  !
+  ! Returns a new char pointer to the ascii_art string
+  ! The caller is responsible to free the pointer using 'basic_str_free'.
+  ! char *ascii_art_str();
+  type(c_ptr) function ascii_art_str() bind(c,name="ascii_art_str")
+    import c_ptr
+  end function
+
+  !
+  ! Wrapper for ntheory
+  !
+  ! Greatest Common Divisor
+  ! CWRAPPER_OUTPUT_TYPE ntheory_gcd(basic s, const basic a, const basic b);
+  type(c_ptr) function ntheory_gcd(s,a,b) bind(c,name="ntheory_gcd")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Least Common Multiple
+  ! CWRAPPER_OUTPUT_TYPE ntheory_lcm(basic s, const basic a, const basic b);
+  type(c_ptr) function ntheory_lcm(s,a,b) bind(c,name="ntheory_lcm")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! Extended GCD
+  ! CWRAPPER_OUTPUT_TYPE ntheory_gcd_ext(basic g, basic s, basic t, const basic a,
+  !                                      const basic b);
+  type(c_ptr) function ntheory_gcd_ext(g,s,t,a,b) bind(c,name="ntheory_gcd_ext")
+    import c_ptr
+    type(c_ptr) :: g, s, t
+    type(c_ptr), intent(in) :: a, b
+  end function
+  ! \return next prime after `a`
+  ! CWRAPPER_OUTPUT_TYPE ntheory_nextprime(basic s, const basic a);
+  type(c_ptr) function ntheory_nextprime(s,a) bind(c,name="ntheory_nextprime")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a
+  end function
+  ! modulo round toward zero
+  ! CWRAPPER_OUTPUT_TYPE ntheory_mod(basic s, const basic n, const basic d);
+  type(c_ptr) function ntheory_mod(s,n,d) bind(c,name="ntheory_mod")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! \return quotient round toward zero when `n` is divided by `d`
+  ! CWRAPPER_OUTPUT_TYPE ntheory_quotient(basic s, const basic n, const basic d);
+  type(c_ptr) function ntheory_quotient(s,n,d) bind(c,name="ntheory_quotient")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! \return modulo and quotient round toward zero
+  ! CWRAPPER_OUTPUT_TYPE ntheory_quotient_mod(basic q, basic r, const basic n,
+  !                                           const basic d);
+  type(c_ptr) function ntheory_quotient_mod(q,r,n,d) bind(c,name="ntheory_quotient_mod")
+    import c_ptr
+    type(c_ptr) :: q, r
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! modulo round toward -inf
+  ! CWRAPPER_OUTPUT_TYPE ntheory_mod_f(basic s, const basic n, const basic d);
+  type(c_ptr) function ntheory_mod_f(s,n,d) bind(c,name="ntheory_mod_f")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! \return quotient round toward -inf when `n` is divided by `d`
+  ! CWRAPPER_OUTPUT_TYPE ntheory_quotient_f(basic s, const basic n, const basic d);
+  type(c_ptr) function ntheory_quotient_f(s,n,d) bind(c,name="ntheory_quotient_f")
+    import c_ptr
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! \return modulo and quotient round toward -inf
+  ! CWRAPPER_OUTPUT_TYPE ntheory_quotient_mod_f(basic q, basic r, const basic n,
+  !                                             const basic d);
+  type(c_ptr) function ntheory_quotient_mod_f(q,r,n,d) bind(c,name="ntheory_quotient_mod_f")
+    import c_ptr
+    type(c_ptr) :: q, r
+    type(c_ptr), intent(in) :: n, d
+  end function
+  ! inverse modulo
+  ! int ntheory_mod_inverse(basic b, const basic a, const basic m);
+  integer(c_int) function ntheory_mod_inverse(b,a,m) bind(c,name="ntheory_mod_inverse")
+    import c_ptr, c_int
+    type(c_ptr) :: b
+    type(c_ptr), intent(in) :: a, m
+  end function
+
+  ! nth Fibonacci number //  fibonacci(0) = 0 and fibonacci(1) = 1
+  ! CWRAPPER_OUTPUT_TYPE ntheory_fibonacci(basic s, unsigned long a);
+  type(c_ptr) function ntheory_fibonacci(s,a) bind(c,name="ntheory_fibonacci")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: a
+  end function
+  ! Fibonacci n and n-1
+  ! CWRAPPER_OUTPUT_TYPE ntheory_fibonacci2(basic g, basic s, unsigned long a);
+  type(c_ptr) function ntheory_fibonacci2(g,s,a) bind(c,name="ntheory_fibonacci2")
+    import c_ptr, c_long
+    type(c_ptr) :: g, s
+    integer(c_long), value :: a
+  end function
+  ! Lucas number
+  ! CWRAPPER_OUTPUT_TYPE ntheory_lucas(basic s, unsigned long a);
+  type(c_ptr) function ntheory_lucas(s,a) bind(c,name="ntheory_lucas")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: a
+  end function
+  ! Lucas number n and n-1
+  ! CWRAPPER_OUTPUT_TYPE ntheory_lucas2(basic g, basic s, unsigned long a);
+  type(c_ptr) function ntheory_lucas2(g,s,a) bind(c,name="ntheory_lucas2")
+    import c_ptr, c_long
+    type(c_ptr) :: g, s
+    integer(c_long), value :: a
+  end function
+  ! Binomial Coefficient
+  ! CWRAPPER_OUTPUT_TYPE ntheory_binomial(basic s, const basic a, unsigned long b);
+  type(c_ptr) function ntheory_binomial(s,a,b) bind(c,name="ntheory_binomial")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: a
+    integer(c_long), value :: b
+  end function
+  ! Factorial
+  ! CWRAPPER_OUTPUT_TYPE ntheory_factorial(basic s, unsigned long n);
+  type(c_ptr) function ntheory_factorial(s,n) bind(c,name="ntheory_factorial")
+    import c_ptr, c_long
+    type(c_ptr) :: s
+    integer(c_long), value :: n
+  end function
+  ! Evaluate b and assign the value to s
+  ! CWRAPPER_OUTPUT_TYPE basic_evalf(basic s, const basic b, unsigned long bits,
+  !                                  int real);
+  type(c_ptr) function basic_evalf(s,b,bits,real) bind(c,name="basic_evalf")
+    import c_ptr, c_long, c_int
+    type(c_ptr) :: s
+    type(c_ptr), intent(in) :: b
+    integer(c_long), value :: bits
+    integer(c_int), value :: real
+  end function
+
+
+  !
+  ! Wrapper for as_numer_denom
+  !
+  ! CWRAPPER_OUTPUT_TYPE basic_as_numer_denom(basic numer, basic denom,
+  !                                           const basic x);
+  type(c_ptr) function basic_as_numer_denom(numer,denom,x) bind(c,name="basic_as_numer_denom")
+    import c_ptr
+    type(c_ptr) :: numer, denom
+    type(c_ptr), intent(in) :: x
+  end function
+
+  !
+  ! Wrapper for LambdaRealDoubleVisitor
+  !
+  ! CLambdaRealDoubleVisitor *lambda_real_double_visitor_new();
+  type(c_ptr) function lambda_real_double_visitor_new() bind(c,name="lambda_real_double_visitor_new")
+    import c_ptr
+  end function
+  ! void lambda_real_double_visitor_init(CLambdaRealDoubleVisitor *self,
+  !                                      const CVecBasic *args,
+  !                                      const CVecBasic *exprs, int perform_cse);
+  subroutine lambda_real_double_visitor_init(self,args,exprs,perform_cse) bind(c,name="lambda_real_double_visitor_init")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: args
+    type(c_ptr), intent(in) :: exprs
+    integer(c_int), value :: perform_cse
+  end subroutine
+  ! void lambda_real_double_visitor_call(CLambdaRealDoubleVisitor *self,
+  !                                      double *const outs,
+  !                                      const double *const inps);
+  subroutine lambda_real_double_visitor_call(self,outs,inps) bind(c,name="lambda_real_double_visitor_call")
+    import c_ptr, c_double
+    type(c_ptr) :: self
+    real(c_double) :: outs(*)
+    real(c_double), intent(in) :: inps(*)
+  end subroutine
+  ! void lambda_real_double_visitor_free(CLambdaRealDoubleVisitor *self);
+  subroutine lambda_real_double_visitor_free(self) bind(c,name="lambda_real_double_visitor_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+
+#:if defined('HAVE_SYMENGINE_LLVM')
+! double
+! CLLVMDoubleVisitor *llvm_double_visitor_new();
+  type(c_ptr) function llvm_double_visitor_new() bind(c,name="llvm_double_visitor_new")
+    import c_ptr
+  end function
+! void llvm_double_visitor_init(CLLVMDoubleVisitor *self, const CVecBasic *args,
+!                               const CVecBasic *exprs, int perform_cse,
+!                               int opt_level);
+  subroutine llvm_double_visitor_init(self,args,exprs,perform_cse,opt_level) &
+    bind(c,name="llvm_double_visitor_init")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: args
+    type(c_ptr), intent(in) :: exprs
+    integer(c_int), value :: perform_cse
+    integer(c_int), value :: opt_level
+  end subroutine
+! void llvm_double_visitor_call(CLLVMDoubleVisitor *self, double *const outs,
+!                               const double *const inps);
+  subroutine llvm_double_visitor_call(self,outs,inps) bind(c,name="llvm_double_visitor_call")
+    import c_ptr, c_double
+    type(c_ptr) :: self
+    real(c_double) :: outs(*)
+    real(c_double), intent(in) :: inps(*)
+  end subroutine
+! void llvm_double_visitor_free(CLLVMDoubleVisitor *self);
+  subroutine llvm_double_visitor_free(self) bind(c,name="llvm_double_visitor_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+! float
+! CLLVMFloatVisitor *llvm_float_visitor_new();
+  type(c_ptr) function llvm_float_visitor_new() bind(c,name="llvm_float_visitor_new")
+    import c_ptr
+  end function
+! void llvm_float_visitor_init(CLLVMFloatVisitor *self, const CVecBasic *args,
+!                              const CVecBasic *exprs, int perform_cse,
+!                              int opt_level);
+  subroutine llvm_float_visitor_init(self,args,exprs,perform_cse,opt_level) &
+    bind(c,name="llvm_float_visitor_init")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: args
+    type(c_ptr), intent(in) :: exprs
+    integer(c_int), value :: perform_cse
+    integer(c_int), value :: opt_level
+  end subroutine
+! void llvm_float_visitor_call(CLLVMFloatVisitor *self, float *const outs,
+!                              const float *const inps);
+  subroutine llvm_float_visitor_call(self,outs,inps) bind(c,name="llvm_float_visitor_call")
+    import c_ptr, c_float
+    type(c_ptr) :: self
+    real(c_float) :: outs(*)
+    real(c_float), intent(in) :: inps(*)
+  end subroutine
+! void llvm_float_visitor_free(CLLVMFloatVisitor *self);
+  subroutine llvm_float_visitor_free(self) bind(c,name="llvm_float_visitor_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+
+#:if defined('SYMENGINE_HAVE_LLVM_LONG_DOUBLE')
+  ! CLLVMLongDoubleVisitor *llvm_long_double_visitor_new();
+  type(c_ptr) function llvm_long_double_visitor_new() bind(c,name="llvm_long_double_visitor_new")
+    import c_ptr
+  end function
+  ! void llvm_long_double_visitor_init(CLLVMLongDoubleVisitor *self,
+  !                                    const CVecBasic *args,
+  !                                    const CVecBasic *exprs, int perform_cse,
+  !                                    int opt_level);
+  subroutine llvm_long_double_visitor_init(self,args,exprs,perform_cse,opt_level) &
+    bind(c,name="llvm_long_double_visitor_init")
+    import c_ptr, c_int
+    type(c_ptr) :: self
+    type(c_ptr), intent(in) :: args
+    type(c_ptr), intent(in) :: exprs
+    integer(c_int), value :: perform_cse
+    integer(c_int), value :: opt_level
+  end subroutine
+  ! void llvm_long_double_visitor_call(CLLVMLongDoubleVisitor *self,
+  !                                    long double *const outs,
+  !                                    const long double *const inps);
+  subroutine llvm_long_double_visitor_call(self,outs,inps) bind(c,name="llvm_long_double_visitor_call")
+    import c_ptr, c_long_double
+    type(c_ptr) :: self
+    real(c_long_double) :: outs(*)
+    real(c_long_double), intent(in) :: inps(*)
+  end subroutine
+  ! void llvm_long_double_visitor_free(CLLVMLongDoubleVisitor *self);
+  subroutine llvm_long_double_visitor_free(self) bind(c,name="llvm_long_double_visitor_free")
+    import c_ptr
+    type(c_ptr) :: self
+  end subroutine
+#:endif
+#:endif
+
+
+  ! CWRAPPER_OUTPUT_TYPE basic_cse(CVecBasic *replacement_syms,
+  !                                CVecBasic *replacement_exprs,
+  !                                CVecBasic *reduced_exprs,
+  !                                const CVecBasic *exprs);
+  type(c_ptr) function basic_cse(replacement_syms,replacement_exprs,reduced_exprs,exprs) bind(c,name="basic_cse")
+    import c_ptr
+    type(c_ptr) :: replacement_syms
+    type(c_ptr) :: replacement_exprs
+    type(c_ptr) :: reduced_exprs
+    type(c_ptr), intent(in) :: exprs
+  end function
+
+  ! Print stacktrace on segfault
+  ! void symengine_print_stack_on_segfault();
+  subroutine symengine_print_stack_on_segfault() bind(c,name="symengine_print_stack_on_segfault")
+  end subroutine
+
+  end interface
+
+end module
