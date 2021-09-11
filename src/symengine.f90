@@ -1,6 +1,6 @@
 module symengine
 
-use iso_c_binding, only: c_size_t, c_int, c_long, c_char, c_ptr, c_null_ptr, c_null_char, c_f_pointer, c_associated
+use iso_c_binding, only: c_size_t, c_int, c_long, c_double, c_char, c_ptr, c_null_ptr, c_null_char, c_f_pointer, c_associated
 implicit none
 
 interface
@@ -82,6 +82,19 @@ interface
         type(c_ptr), value :: s, a
         integer(c_long) :: c_basic_cos
     end function
+    function c_basic_sqrt(s, a) bind(c, name='basic_sqrt')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_sqrt
+    end function
+    function c_basic_evalf(s, b, bits, domain) bind(c, name='basic_evalf')
+        import :: c_long, c_int, c_ptr
+        type(c_ptr), value :: s
+        type(c_ptr), value :: b
+        integer(c_long), value :: bits
+        integer(c_int), value :: domain
+        integer(c_long) :: c_basic_evalf
+    end function
     function c_integer_set_si(s, i) bind(c, name='integer_set_si')
         import :: c_long, c_ptr
         type(c_ptr), value :: s
@@ -99,6 +112,12 @@ interface
         integer(c_long), value :: a, b
         integer(c_long) :: c_rational_set_si
     end function
+    function c_real_double_set_d(s, d) bind(c, name='real_double_set_d')
+        import :: c_double, c_long, c_ptr
+        type(c_ptr), value :: s
+        real(c_double), value :: d
+        integer(c_long) :: c_real_double_set_d
+    end function
     function c_symbol_set(s, c) bind(c, name='symbol_set')
         import c_long, c_ptr, c_char
         type(c_ptr), value :: s
@@ -112,7 +131,7 @@ type Basic
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
 contains
-    procedure :: str, basic_assign, basic_add, basic_sub, basic_mul, basic_div, basic_pow, basic_eq, basic_neq
+    procedure :: str, evalf, basic_assign, basic_add, basic_sub, basic_mul, basic_div, basic_pow, basic_eq, basic_neq
     generic :: assignment(=) => basic_assign
     generic :: operator(+) => basic_add
     generic :: operator(-) => basic_sub
@@ -136,6 +155,10 @@ interface cos
     module procedure basic_cos
 end interface
 
+interface sqrt
+    module procedure basic_sqrt
+end interface
+
 type, extends(Basic) :: SymInteger
 contains
     procedure :: get
@@ -152,6 +175,14 @@ interface Rational
     module procedure rational_new
 end interface
 
+type, extends(Basic) :: RealDouble
+end type RealDouble
+
+interface RealDouble
+    module procedure real_new_d
+    module procedure real_new_f
+end interface
+
 type, extends(Basic) :: Symbol
 end type Symbol
 
@@ -160,11 +191,25 @@ interface Symbol
 end interface
 
 private
-public :: Basic, SymInteger, Rational, Symbol, parse, sin, cos
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt
 
 
 contains
 
+subroutine handle_exception(a)
+    integer(c_long) :: a
+    if (a == 1) then
+        error stop "Runtime error"
+    else if (a == 2) then
+        error stop "Division by zero"
+    else if (a == 3) then
+        error stop "Not implemented"
+    else if (a == 4) then
+        error stop "Domain error"
+    else if (a == 5) then
+        error stop "Parse error"
+    end if
+end subroutine
 
 function basic_new() result(new)
     type(Basic) :: new
@@ -193,11 +238,12 @@ end function
 subroutine basic_assign(a, b)
     class(basic), intent(inout) :: a
     class(basic), intent(in) :: b
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     if (.not. c_associated(a%ptr)) then
         a%ptr = c_basic_new_heap()
     end if
-    dummy = c_basic_assign(a%ptr, b%ptr)
+    exception = c_basic_assign(a%ptr, b%ptr)
+    call handle_exception(exception)
     if (b%tmp) then
         call basic_free(b)
     end if
@@ -206,45 +252,50 @@ end subroutine
 function basic_add(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_add
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_add = Basic()
-    dummy = c_basic_add(basic_add%ptr, a%ptr, b%ptr)
+    exception = c_basic_add(basic_add%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
     basic_add%tmp = .true.
 end function
 
 function basic_sub(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_sub
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_sub = Basic()
-    dummy = c_basic_sub(basic_sub%ptr, a%ptr, b%ptr)
+    exception = c_basic_sub(basic_sub%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
     basic_sub%tmp = .true.
 end function
 
 function basic_mul(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_mul
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_mul = Basic()
-    dummy = c_basic_mul(basic_mul%ptr, a%ptr, b%ptr)
+    exception = c_basic_mul(basic_mul%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
     basic_mul%tmp = .true.
 end function
 
 function basic_div(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_div
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_div = Basic()
-    dummy = c_basic_div(basic_div%ptr, a%ptr, b%ptr)
+    exception = c_basic_div(basic_div%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
     basic_div%tmp = .true.
 end function
 
 function basic_pow(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_pow
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_pow = Basic()
-    dummy = c_basic_pow(basic_pow%ptr, a%ptr, b%ptr)
+    exception = c_basic_pow(basic_pow%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
     basic_pow%tmp = .true.
 end function
 
@@ -267,29 +318,54 @@ end function
 function basic_sin(a)
     class(basic), intent(in) :: a
     type(basic) :: basic_sin
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_sin = Basic()
-    dummy = c_basic_sin(basic_sin%ptr, a%ptr)
+    exception = c_basic_sin(basic_sin%ptr, a%ptr)
+    call handle_exception(exception)
     basic_sin%tmp = .true.
 end function
 
 function basic_cos(a)
     class(basic), intent(in) :: a
     type(basic) :: basic_cos
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     basic_cos = Basic()
-    dummy = c_basic_cos(basic_cos%ptr, a%ptr)
+    exception = c_basic_cos(basic_cos%ptr, a%ptr)
+    call handle_exception(exception)
     basic_cos%tmp = .true.
+end function
+
+function basic_sqrt(a)
+    class(basic), intent(in) :: a
+    type(basic) :: basic_sqrt
+    integer(c_long) :: exception
+    basic_sqrt = Basic()
+    exception = c_basic_sqrt(basic_sqrt%ptr, a%ptr)
+    call handle_exception(exception)
+    basic_sqrt%tmp = .true.
+end function
+
+function evalf(b, bits, r)
+    class(basic), intent(in) :: b
+    integer(c_long) :: bits
+    integer(c_int) :: r
+    type(basic) :: evalf
+    integer(c_long) :: exception
+    evalf = Basic()
+    exception = c_basic_evalf(evalf%ptr, b%ptr, bits, r)
+    call handle_exception(exception)
+    evalf%tmp = .true.
 end function
 
 function integer_new(i)
     integer :: i
     integer(c_long) :: j
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     type(SymInteger) :: integer_new
     j = int(i)
     integer_new%ptr = c_basic_new_heap()
-    dummy = c_integer_set_si(integer_new%ptr, j)
+    exception = c_integer_set_si(integer_new%ptr, j)
+    call handle_exception(exception)
     integer_new%tmp = .true.
 end function
 
@@ -302,34 +378,57 @@ end function
 function rational_new(a, b)
     integer :: a, b
     integer(c_long) :: x, y
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     type(Rational) :: rational_new
     x = int(a)
     y = int(b)
     rational_new%ptr = c_basic_new_heap()
-    dummy = c_rational_set_si(rational_new%ptr, x, y)
+    exception = c_rational_set_si(rational_new%ptr, x, y)
+    call handle_exception(exception)
     rational_new%tmp = .true.
+end function
+
+function real_new_d(d)
+    real(c_double) :: d
+    integer(c_long) :: exception
+    type(RealDouble) :: real_new_d
+    real_new_d%ptr = c_basic_new_heap()
+    exception = c_real_double_set_d(real_new_d%ptr, d)
+    call handle_exception(exception)
+    real_new_d%tmp = .true.
+end function
+
+function real_new_f(f)
+    real :: f
+    integer(c_long) :: exception
+    type(RealDouble) :: real_new_f
+    real_new_f%ptr = c_basic_new_heap()
+    exception = c_real_double_set_d(real_new_f%ptr, real(f, 8))
+    call handle_exception(exception)
+    real_new_f%tmp = .true.
 end function
 
 function symbol_new(c)
     character(len=*) :: c
     character(len=len_trim(c) + 1) :: new_c
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     type(Symbol) :: symbol_new
     new_c = trim(c) // c_null_char
     symbol_new%ptr = c_basic_new_heap()
     symbol_new%tmp = .true.
-    dummy = c_symbol_set(symbol_new%ptr, new_c) 
+    exception = c_symbol_set(symbol_new%ptr, new_c) 
+    call handle_exception(exception)
 end function
 
 function parse(c)
     character(len=*) :: c
     type(Basic) :: parse
-    integer(c_long) :: dummy
+    integer(c_long) :: exception
     character(len=len_trim(c) + 1) :: new_c
     new_c = trim(c) // c_null_char
     parse%ptr = c_basic_new_heap()
-    dummy = c_basic_parse(parse%ptr, new_c) 
+    exception = c_basic_parse(parse%ptr, new_c) 
+    call handle_exception(exception)
     parse%tmp = .true.
 end function
 
