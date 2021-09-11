@@ -95,6 +95,14 @@ interface
         integer(c_int), value :: domain
         integer(c_long) :: c_basic_evalf
     end function
+    subroutine c_basic_const_pi(s) bind(c, name='basic_const_pi')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_const_e(s) bind(c, name='basic_const_E')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
     function c_integer_set_si(s, i) bind(c, name='integer_set_si')
         import :: c_long, c_ptr
         type(c_ptr), value :: s
@@ -131,10 +139,11 @@ type Basic
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
 contains
-    procedure :: str, evalf, basic_assign, basic_add, basic_sub, basic_mul, basic_div, basic_pow, basic_eq, basic_neq
+    procedure :: str, evalf, basic_assign, basic_add, basic_sub, basic_neg, basic_mul, basic_div, basic_pow, basic_eq, basic_neq
     generic :: assignment(=) => basic_assign
     generic :: operator(+) => basic_add
     generic :: operator(-) => basic_sub
+    generic :: operator(-) => basic_neg
     generic :: operator(*) => basic_mul
     generic :: operator(/) => basic_div
     generic :: operator(**) => basic_pow
@@ -191,7 +200,7 @@ interface Symbol
 end interface
 
 private
-public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, pi, e
 
 
 contains
@@ -269,6 +278,17 @@ function basic_sub(a, b)
     basic_sub%tmp = .true.
 end function
 
+function basic_neg(a)
+    class(basic), intent(in) :: a
+    type(basic) :: basic_neg, zero
+    integer(c_long) :: exception
+    zero = SymInteger(0)
+    basic_neg = Basic()
+    exception = c_basic_sub(basic_neg%ptr, zero%ptr, a%ptr)
+    call handle_exception(exception)
+    basic_neg%tmp = .true.
+end function
+
 function basic_mul(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_mul
@@ -343,6 +363,20 @@ function basic_sqrt(a)
     exception = c_basic_sqrt(basic_sqrt%ptr, a%ptr)
     call handle_exception(exception)
     basic_sqrt%tmp = .true.
+end function
+
+function pi()
+    type(basic) :: pi
+    pi = Basic()
+    call c_basic_const_pi(pi%ptr)
+    pi%tmp = .true.
+end function
+
+function e()
+    type(basic) :: e
+    e = Basic()
+    call c_basic_const_e(e%ptr)
+    e%tmp = .true.
 end function
 
 function evalf(b, bits, r)

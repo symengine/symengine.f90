@@ -22,6 +22,9 @@ subroutine dostuff()
     c = parse('12 - x')
     call assert_eq(a - b, c)
 
+    c = parse('-x')
+    call assert_eq(-b, c)
+
     c = parse('12 / x')
     call assert_eq(a / b, c)
 
@@ -57,6 +60,14 @@ subroutine dostuff()
     c = c%evalf(53_8, 1)
     d = RealDouble(1.4142135623730951d0)
     call assert_eq(c, d)
+
+    a = pi()
+    b = parse("pi")
+    call assert_eq(a, b)
+
+    a = e()
+    b = parse("e")
+    call assert_eq(a, b)
 end subroutine
 
 
