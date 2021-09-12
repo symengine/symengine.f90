@@ -7,11 +7,31 @@ subroutine assert_eq(a, b)
     end if
 end subroutine
 
+subroutine assert_matrix_eq(a, b)
+    use symengine
+    type(DenseMatrix) :: a, b
+    if (.not. (a == b)) then
+        print *, a%str(), " /= ", b%str()
+        error stop "Not equal"
+    end if
+end subroutine
+
+subroutine assert_str_eq(a, b)
+    use symengine
+    character(len=*), intent(in) :: a, b
+    if (b /= a(1:len(a)-1)) then
+        print *, a, " /= ", b
+        error stop "Not equal"
+    end if
+end subroutine
+
+
 
 subroutine dostuff()
     use symengine
     use iso_fortran_env, only: int64
     type(Basic) :: a, b, c, d
+    type(DenseMatrix) :: M, N
 
     a = SymInteger(12)
     b = Symbol('x')
@@ -163,6 +183,15 @@ subroutine dostuff()
     c = SymComplex(a, b)
     d = parse('23 + 45*I')
     call assert_eq(c, d)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = M + SymInteger(2)
+    call assert_str_eq(M%str(), '[3, 4]')
+    call assert_matrix_eq(M, N)
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    M = SymInteger(2) + M
+    call assert_matrix_eq(M, N)
 end subroutine
 
 

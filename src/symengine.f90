@@ -157,9 +157,43 @@ interface
         type(c_ptr), value :: s
     end subroutine
     function c_vecbasic_push_back(s, val) bind(c, name='vecbasic_push_back')
-        import c_ptr, c_long
+        import :: c_ptr, c_long
         type(c_ptr), value :: val, s
         integer(c_long) :: c_vecbasic_push_back
+    end function
+    function c_dense_matrix_new() result(res) bind(c, name='dense_matrix_new')
+        import :: c_ptr
+        type(c_ptr) :: res
+    end function
+    function c_dense_matrix_new_vec(rows, cols, l) result(res) bind(c, name='dense_matrix_new_vec')
+        import :: c_ptr, c_long
+        integer(c_long), value :: rows, cols
+        type(c_ptr), value :: l
+        type(c_ptr) :: res
+    end function
+    subroutine c_dense_matrix_free(s) bind(c, name='dense_matrix_free')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    function c_dense_matrix_set(s, d) result(res) bind(c, name='dense_matrix_set')
+        import :: c_ptr, c_long
+        type(c_ptr), value :: s, d
+        integer(c_long) :: res
+    end function
+    function c_dense_matrix_add_scalar(s, a, b) result(res) bind(c, name='dense_matrix_add_scalar')
+        import :: c_ptr, c_long
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: res
+    end function
+    function c_dense_matrix_str(s) result(res) bind(c, name='dense_matrix_str')
+        import :: c_ptr
+        type(c_ptr), value :: s
+        type(c_ptr) :: res
+    end function
+    function c_dense_matrix_eq(lhs, rhs) result(res) bind(c, name='dense_matrix_eq')
+        import :: c_int, c_ptr
+        type(c_ptr), value :: lhs, rhs
+        integer(c_int) :: res
     end function
 end interface
 
@@ -266,10 +300,27 @@ interface Symbol
     module procedure symbol_new
 end interface
 
+type DenseMatrix
+    type(c_ptr) :: ptr = c_null_ptr
+    logical :: tmp = .false.
+contains
+    procedure :: str => matrix_str
+    procedure :: matrix_assign, matrix_eq
+    procedure, pass(this) :: matrix_add_scalar_left, matrix_add_scalar_right
+    generic :: assignment(=) => matrix_assign
+    generic :: operator(+) => matrix_add_scalar_left, matrix_add_scalar_right
+    generic :: operator(==) => matrix_eq
+    final :: matrix_free
+end type
+
+interface DenseMatrix
+    module procedure matrix_new
+end interface
+
 private
 public :: ptr
 public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e, SymComplex
-
+public :: DenseMatrix
 
 contains
 
@@ -896,6 +947,88 @@ function basic_max(d)
     call c_vecbasic_free(vec)
     call handle_exception(exception)
     basic_max%tmp = .true.
+end function
+
+function matrix_new(rows, cols, d) result(res)
+    integer :: rows, cols
+    type(c_ptr), dimension(:) :: d
+    type(DenseMatrix) :: res
+
+    type(c_ptr) :: vec
+    integer(c_long) :: exception, rlong, clong
+    integer :: i
+
+    vec = c_vecbasic_new()
+
+    do i = 1, size(d)
+        exception = c_vecbasic_push_back(vec, d(i))
+        call handle_exception(exception)
+    end do
+
+    rlong = int(rows)
+    clong = int(cols)
+    res%ptr = c_dense_matrix_new_vec(rlong, clong, vec)
+    call c_vecbasic_free(vec)
+    res%tmp = .true.
+end function
+
+subroutine matrix_free(this)
+    type(DenseMatrix) :: this
+    call c_dense_matrix_free(this%ptr)
+end subroutine
+
+subroutine matrix_assign(a, b)
+    class(DenseMatrix), intent(inout) :: a
+    class(DenseMatrix), intent(in) :: b
+    integer(c_long) :: exception
+    if (.not. c_associated(a%ptr)) then
+        a%ptr = c_dense_matrix_new()
+    end if
+    exception = c_dense_matrix_set(a%ptr, b%ptr)
+    call handle_exception(exception)
+    if (b%tmp) then
+        call matrix_free(b)
+    end if
+end subroutine
+
+function matrix_add_scalar_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    class(Basic), intent(in) :: b
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_add_scalar(res%ptr, this%ptr, b%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_add_scalar_right(a, this) result(res)
+    class(Basic), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, a)
+end function
+
+function matrix_str(e) result(res)
+    class(DenseMatrix) :: e
+    character, pointer, dimension(:) :: tempstr
+    character(:), allocatable :: res
+    type(c_ptr) :: cstring
+    integer :: nchars
+    cstring = c_dense_matrix_str(e%ptr)
+    nchars = c_strlen(cstring)
+    call c_f_pointer(cstring, tempstr, [nchars])
+    allocate(character(len=nchars) :: res)
+    res = transfer(tempstr(1:nchars), res)
+    call c_basic_str_free(cstring)
+end function
+
+function matrix_eq(a, b) result(res)
+    class(DenseMatrix), intent(in) :: a, b
+    logical :: res
+    integer(c_int) :: dummy
+    dummy = c_dense_matrix_eq(a%ptr, b%ptr)
+    res = (dummy /= 0)
 end function
 
 end module
