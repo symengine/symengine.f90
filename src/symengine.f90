@@ -137,6 +137,11 @@ interface
         real(c_double), value :: d
         integer(c_long) :: c_real_double_set_d
     end function
+    function c_complex_set(s, re, im) result(res) bind(c, name='complex_set')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, re, im
+        integer(c_long) :: res
+    end function
     function c_symbol_set(s, c) bind(c, name='symbol_set')
         import c_long, c_ptr, c_char
         type(c_ptr), value :: s
@@ -243,6 +248,17 @@ interface RealDouble
     module procedure real_new_f
 end interface
 
+type, extends(Basic) :: SymComplex
+end type SymComplex
+
+interface SymComplex
+    module procedure complex_new
+    module procedure complex_new_i_i
+    module procedure complex_new_i64_i
+    module procedure complex_new_i_i64
+    module procedure complex_new_i64_i64
+end interface
+
 type, extends(Basic) :: Symbol
 end type Symbol
 
@@ -252,15 +268,15 @@ end interface
 
 private
 public :: ptr
-public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e, SymComplex
 
 
 contains
 
-function ptr(a)
+function ptr(a) result(res)
     class(Basic) :: a
-    type(c_ptr) :: ptr
-    ptr = a%ptr
+    type(c_ptr) :: res
+    res = a%ptr
 end function
 
 subroutine handle_exception(a)
@@ -800,6 +816,42 @@ function real_new_f(f)
     exception = c_real_double_set_d(real_new_f%ptr, real(f, 8))
     call handle_exception(exception)
     real_new_f%tmp = .true.
+end function
+
+function complex_new(re, im) result(res)
+    class(basic) :: re, im
+    type(basic) :: res
+    integer(c_long) :: exception
+    res%ptr = c_basic_new_heap()
+    exception = c_complex_set(res%ptr, re%ptr, im%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function complex_new_i_i(re, im) result(res)
+    integer :: re, im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i_i64(re, im) result(res)
+    integer :: re
+    integer(kind=int64) :: im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i64_i(re, im) result(res)
+    integer(kind=int64) :: re
+    integer :: im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i64_i64(re, im) result(res)
+    integer(kind=int64) :: re, im
+    type(SymComplex) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
 end function
 
 function symbol_new(c)

@@ -145,6 +145,24 @@ subroutine dostuff()
     c = b%subs(a, SymInteger(15))
     d = SymInteger(30)
     call assert_eq(c, d)
+
+    a = SymComplex(1, 1)
+    b = parse('1 + I')
+    call assert_eq(a, b)
+
+    a = SymComplex(1_int64, 1_int64)
+    b = parse('1 + I')
+    call assert_eq(a, b)
+    a = SymComplex(1, 1_int64)
+    call assert_eq(a, b)
+    a = SymComplex(1_int64, 1)
+    call assert_eq(a, b)
+
+    a = SymInteger(23)
+    b = SymInteger(45)
+    c = SymComplex(a, b)
+    d = parse('23 + 45*I')
+    call assert_eq(c, d)
 end subroutine
 
 
