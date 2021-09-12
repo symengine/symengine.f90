@@ -1,6 +1,7 @@
 module symengine
 
 use iso_c_binding, only: c_size_t, c_int, c_long, c_double, c_char, c_ptr, c_null_ptr, c_null_char, c_f_pointer, c_associated
+use iso_fortran_env, only: int64, real64
 implicit none
 
 interface
@@ -103,6 +104,16 @@ interface
         import :: c_ptr
         type(c_ptr), value :: s
     end subroutine
+    function c_basic_max(s, d) bind(c, name='basic_max')
+        import :: c_ptr, c_long
+        type(c_ptr), value :: s, d
+        integer(c_long) :: c_basic_max
+    end function
+    function c_basic_subs2(s, e, a, b) bind(c, name='basic_subs2')
+        import :: c_ptr, c_long
+        type(c_ptr), value :: s, e, a, b
+        integer(c_long) :: c_basic_subs2
+    end function
     function c_integer_set_si(s, i) bind(c, name='integer_set_si')
         import :: c_long, c_ptr
         type(c_ptr), value :: s
@@ -132,6 +143,19 @@ interface
         character(kind=c_char), dimension(*) :: c
         integer(c_long) :: c_symbol_set
     end function
+    function c_vecbasic_new() bind(c, name='vecbasic_new')
+        import c_ptr
+        type(c_ptr) :: c_vecbasic_new
+    end function
+    subroutine c_vecbasic_free(s) bind(c, name='vecbasic_free')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    function c_vecbasic_push_back(s, val) bind(c, name='vecbasic_push_back')
+        import c_ptr, c_long
+        type(c_ptr), value :: val, s
+        integer(c_long) :: c_vecbasic_push_back
+    end function
 end interface
 
 
@@ -139,14 +163,36 @@ type Basic
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
 contains
-    procedure :: str, evalf, basic_assign, basic_add, basic_sub, basic_neg, basic_mul, basic_div, basic_pow, basic_eq, basic_neq
+    procedure :: str, subs, evalf, basic_assign, basic_add
+    procedure :: basic_sub, basic_neg, basic_mul
+    procedure :: basic_div, basic_pow, basic_eq, basic_neq
+    procedure, pass(this) :: basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
+    procedure, pass(this) :: basic_add_f_left, basic_add_f_right, basic_add_d_left, basic_add_d_right
+    procedure, pass(this) :: basic_sub_i_left, basic_sub_i_right, basic_sub_i64_left, basic_sub_i64_right
+    procedure, pass(this) :: basic_sub_f_left, basic_sub_f_right, basic_sub_d_left, basic_sub_d_right
+    procedure, pass(this) :: basic_mul_i_left, basic_mul_i_right, basic_mul_i64_left, basic_mul_i64_right
+    procedure, pass(this) :: basic_mul_f_left, basic_mul_f_right, basic_mul_d_left, basic_mul_d_right
+    procedure, pass(this) :: basic_div_i_left, basic_div_i_right, basic_div_i64_left, basic_div_i64_right
+    procedure, pass(this) :: basic_div_f_left, basic_div_f_right, basic_div_d_left, basic_div_d_right
+    procedure, pass(this) :: basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
+    procedure, pass(this) :: basic_pow_f_left, basic_pow_f_right, basic_pow_d_left, basic_pow_d_right
     generic :: assignment(=) => basic_assign
     generic :: operator(+) => basic_add
+    generic :: operator(+) => basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
+    generic :: operator(+) => basic_add_f_left, basic_add_f_right, basic_add_d_left, basic_add_d_right
     generic :: operator(-) => basic_sub
+    generic :: operator(-) => basic_sub_i_left, basic_sub_i_right, basic_sub_i64_left, basic_sub_i64_right
+    generic :: operator(-) => basic_sub_f_left, basic_sub_f_right, basic_sub_d_left, basic_sub_d_right
     generic :: operator(-) => basic_neg
     generic :: operator(*) => basic_mul
+    generic :: operator(*) => basic_mul_i_left, basic_mul_i_right, basic_mul_i64_left, basic_mul_i64_right
+    generic :: operator(*) => basic_mul_f_left, basic_mul_f_right, basic_mul_d_left, basic_mul_d_right
     generic :: operator(/) => basic_div
+    generic :: operator(/) => basic_div_i_left, basic_div_i_right, basic_div_i64_left, basic_div_i64_right
+    generic :: operator(/) => basic_div_f_left, basic_div_f_right, basic_div_d_left, basic_div_d_right
     generic :: operator(**) => basic_pow
+    generic :: operator(**) => basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
+    generic :: operator(**) => basic_pow_f_left, basic_pow_f_right, basic_pow_d_left, basic_pow_d_right
     generic :: operator(==) => basic_eq
     generic :: operator(/=) => basic_neq
     final :: basic_free
@@ -168,6 +214,10 @@ interface sqrt
     module procedure basic_sqrt
 end interface
 
+interface max
+    module procedure basic_max
+end interface
+
 type, extends(Basic) :: SymInteger
 contains
     procedure :: get
@@ -175,6 +225,7 @@ end type SymInteger
 
 interface SymInteger
     module procedure integer_new
+    module procedure integer_new_i64
 end interface
 
 type, extends(Basic) :: Rational
@@ -200,10 +251,17 @@ interface Symbol
 end interface
 
 private
-public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, pi, e
+public :: ptr
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e
 
 
 contains
+
+function ptr(a)
+    class(Basic) :: a
+    type(c_ptr) :: ptr
+    ptr = a%ptr
+end function
 
 subroutine handle_exception(a)
     integer(c_long) :: a
@@ -244,6 +302,16 @@ function str(e)
     call c_basic_str_free(cstring)
 end function
 
+function subs(e, a, b)
+    class(Basic) :: e, a, b
+    integer(c_long) :: exception
+    type(Basic) :: subs
+    subs = Basic()
+    exception = c_basic_subs2(subs%ptr, e%ptr, a%ptr, b%ptr) 
+    call handle_exception(exception)
+    subs%tmp = .true.
+end function
+
 subroutine basic_assign(a, b)
     class(basic), intent(inout) :: a
     class(basic), intent(in) :: b
@@ -258,14 +326,70 @@ subroutine basic_assign(a, b)
     end if
 end subroutine
 
-function basic_add(a, b)
+function basic_add(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic) :: basic_add
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_add = Basic()
-    exception = c_basic_add(basic_add%ptr, a%ptr, b%ptr)
+    res = Basic()
+    exception = c_basic_add(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    basic_add%tmp = .true.
+    res%tmp = .true.
+end function
+
+function basic_add_i_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_add(this, SymInteger(b))
+end function
+
+function basic_add_i_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_add(this, SymInteger(b))
+end function
+
+function basic_add_i64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_add(this, SymInteger(b))
+end function
+
+function basic_add_i64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_add(this, SymInteger(b))
+end function
+
+function basic_add_f_left(this, b)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: basic_add_f_left
+    basic_add_f_left = basic_add(this, RealDouble(b))
+end function
+
+function basic_add_f_right(b, this)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: basic_add_f_right
+    basic_add_f_right = basic_add(this, RealDouble(b))
+end function
+
+function basic_add_d_left(this, b)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: basic_add_d_left
+    basic_add_d_left = basic_add(this, RealDouble(b))
+end function
+
+function basic_add_d_right(b, this)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: basic_add_d_right
+    basic_add_d_right = basic_add(this, RealDouble(b))
 end function
 
 function basic_sub(a, b)
@@ -276,6 +400,62 @@ function basic_sub(a, b)
     exception = c_basic_sub(basic_sub%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
     basic_sub%tmp = .true.
+end function
+
+function basic_sub_i_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(this, SymInteger(b))
+end function
+
+function basic_sub_i_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(SymInteger(b), this)
+end function
+
+function basic_sub_i64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(this, SymInteger(b))
+end function
+
+function basic_sub_i64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(SymInteger(b), this)
+end function
+
+function basic_sub_f_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(this, RealDouble(b))
+end function
+
+function basic_sub_f_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(RealDouble(b), this)
+end function
+
+function basic_sub_d_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(this, RealDouble(b))
+end function
+
+function basic_sub_d_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_sub(RealDouble(b), this)
 end function
 
 function basic_neg(a)
@@ -299,6 +479,62 @@ function basic_mul(a, b)
     basic_mul%tmp = .true.
 end function
 
+function basic_mul_i_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, SymInteger(b))
+end function
+
+function basic_mul_i_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(SymInteger(b), this)
+end function
+
+function basic_mul_i64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, SymInteger(b))
+end function
+
+function basic_mul_i64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(SymInteger(b), this)
+end function
+
+function basic_mul_f_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, RealDouble(b))
+end function
+
+function basic_mul_f_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(RealDouble(b), this)
+end function
+
+function basic_mul_d_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, RealDouble(b))
+end function
+
+function basic_mul_d_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(RealDouble(b), this)
+end function
+
 function basic_div(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_div
@@ -309,6 +545,62 @@ function basic_div(a, b)
     basic_div%tmp = .true.
 end function
 
+function basic_div_i_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_div(this, SymInteger(b))
+end function
+
+function basic_div_i_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_div(SymInteger(b), this)
+end function
+
+function basic_div_i64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_div(this, SymInteger(b))
+end function
+
+function basic_div_i64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_div(SymInteger(b), this)
+end function
+
+function basic_div_f_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_div(this, RealDouble(b))
+end function
+
+function basic_div_f_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_div(RealDouble(b), this)
+end function
+
+function basic_div_d_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_div(this, RealDouble(b))
+end function
+
+function basic_div_d_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_div(RealDouble(b), this)
+end function
+
 function basic_pow(a, b)
     class(basic), intent(in) :: a, b
     type(basic) :: basic_pow
@@ -317,6 +609,62 @@ function basic_pow(a, b)
     exception = c_basic_pow(basic_pow%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
     basic_pow%tmp = .true.
+end function
+
+function basic_pow_i_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, SymInteger(b))
+end function
+
+function basic_pow_i_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer, intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(SymInteger(b), this)
+end function
+
+function basic_pow_i64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, SymInteger(b))
+end function
+
+function basic_pow_i64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(SymInteger(b), this)
+end function
+
+function basic_pow_f_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, RealDouble(b))
+end function
+
+function basic_pow_f_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real, intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(RealDouble(b), this)
+end function
+
+function basic_pow_d_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, RealDouble(b))
+end function
+
+function basic_pow_d_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(RealDouble(b), this)
 end function
 
 function basic_eq(a, b)
@@ -403,6 +751,18 @@ function integer_new(i)
     integer_new%tmp = .true.
 end function
 
+function integer_new_i64(i)
+    integer(kind=int64) :: i
+    integer(c_long) :: j
+    integer(c_long) :: exception
+    type(SymInteger) :: integer_new_i64
+    j = int(i)
+    integer_new_i64%ptr = c_basic_new_heap()
+    exception = c_integer_set_si(integer_new_i64%ptr, j)
+    call handle_exception(exception)
+    integer_new_i64%tmp = .true.
+end function
+
 function get(this) result(i)
     class(SymInteger) :: this
     integer :: i
@@ -464,6 +824,26 @@ function parse(c)
     exception = c_basic_parse(parse%ptr, new_c) 
     call handle_exception(exception)
     parse%tmp = .true.
+end function
+
+function basic_max(d)
+    type(c_ptr), dimension(:) :: d
+    type(Basic) :: basic_max
+    integer :: i
+    type(c_ptr) :: vec
+    integer(c_long) :: exception
+    vec = c_vecbasic_new()
+
+    do i = 1, size(d)
+        exception = c_vecbasic_push_back(vec, d(i))
+        call handle_exception(exception)
+    end do
+
+    basic_max = Basic()
+    exception = c_basic_max(basic_max%ptr, vec)
+    call c_vecbasic_free(vec)
+    call handle_exception(exception)
+    basic_max%tmp = .true.
 end function
 
 end module
