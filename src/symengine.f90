@@ -185,6 +185,11 @@ interface
         type(c_ptr), value :: s, a, b
         integer(c_long) :: res
     end function
+    function c_dense_matrix_mul_scalar(s, a, b) result(res) bind(c, name='dense_matrix_mul_scalar')
+        import :: c_ptr, c_long
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: res
+    end function
     function c_dense_matrix_str(s) result(res) bind(c, name='dense_matrix_str')
         import :: c_ptr
         type(c_ptr), value :: s
@@ -308,9 +313,27 @@ contains
     procedure :: matrix_assign, matrix_eq
     procedure, pass(this) :: matrix_add_scalar_left, matrix_add_scalar_right
     procedure, pass(this) :: matrix_add_scalar_i_left, matrix_add_scalar_i_right
+    procedure, pass(this) :: matrix_add_scalar_i64_left, matrix_add_scalar_i64_right
+    procedure, pass(this) :: matrix_add_scalar_f_left, matrix_add_scalar_f_right
+    procedure, pass(this) :: matrix_add_scalar_d_left, matrix_add_scalar_d_right
+    procedure, pass(this) :: matrix_neg
+    procedure, pass(this) :: matrix_sub_scalar_left, matrix_sub_scalar_right
+    procedure, pass(this) :: matrix_sub_scalar_i_left, matrix_sub_scalar_i_right
+    procedure, pass(this) :: matrix_sub_scalar_i64_left, matrix_sub_scalar_i64_right
+    procedure, pass(this) :: matrix_sub_scalar_f_left, matrix_sub_scalar_f_right
+    procedure, pass(this) :: matrix_sub_scalar_d_left, matrix_sub_scalar_d_right
     generic :: assignment(=) => matrix_assign
     generic :: operator(+) => matrix_add_scalar_left, matrix_add_scalar_right
     generic :: operator(+) => matrix_add_scalar_i_left, matrix_add_scalar_i_right
+    generic :: operator(+) => matrix_add_scalar_i64_left, matrix_add_scalar_i64_right
+    generic :: operator(+) => matrix_add_scalar_f_left, matrix_add_scalar_f_right
+    generic :: operator(+) => matrix_add_scalar_d_left, matrix_add_scalar_d_right
+    generic :: operator(-) => matrix_neg
+    generic :: operator(-) => matrix_sub_scalar_left, matrix_sub_scalar_right
+    generic :: operator(-) => matrix_sub_scalar_i_left, matrix_sub_scalar_i_right
+    generic :: operator(-) => matrix_sub_scalar_i64_left, matrix_sub_scalar_i64_right
+    generic :: operator(-) => matrix_sub_scalar_f_left, matrix_sub_scalar_f_right
+    generic :: operator(-) => matrix_sub_scalar_d_left, matrix_sub_scalar_d_right
     generic :: operator(==) => matrix_eq
     final :: matrix_free
 end type
@@ -1027,6 +1050,54 @@ function matrix_add_scalar_i_right(a, this) result(res)
     res = matrix_add_scalar_i_left(this, a)
 end function
 
+function matrix_add_scalar_i64_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_add_scalar_left(this, i)
+end function
+
+function matrix_add_scalar_i64_right(a, this) result(res)
+    integer(kind=int64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_i64_left(this, a)
+end function
+
+function matrix_add_scalar_f_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real, intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_add_scalar_left(this, i)
+end function
+
+function matrix_add_scalar_f_right(a, this) result(res)
+    real, intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_f_left(this, a)
+end function
+
+function matrix_add_scalar_d_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_add_scalar_left(this, i)
+end function
+
+function matrix_add_scalar_d_right(a, this) result(res)
+    real(kind=real64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_d_left(this, a)
+end function
+
 function matrix_str(e) result(res)
     class(DenseMatrix) :: e
     character, pointer, dimension(:) :: tempstr
@@ -1047,6 +1118,88 @@ function matrix_eq(a, b) result(res)
     integer(c_int) :: dummy
     dummy = c_dense_matrix_eq(a%ptr, b%ptr)
     res = (dummy /= 0)
+end function
+
+function matrix_neg(this) result(res)
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    type(Basic) :: m1
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    m1 = SymInteger(-1)
+    exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, m1%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_sub_scalar_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    class(Basic), intent(in) :: b
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, -b)
+end function
+
+function matrix_sub_scalar_right(a, this) result(res)
+    class(Basic), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(-this, a)
+end function
+
+function matrix_sub_scalar_i_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer, intent(in) :: b
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, SymInteger(-b))
+end function
+
+function matrix_sub_scalar_i_right(a, this) result(res)
+    integer, intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(-this, SymInteger(a))
+end function
+
+function matrix_sub_scalar_i64_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, SymInteger(-b))
+end function
+
+function matrix_sub_scalar_i64_right(a, this) result(res)
+    integer(kind=int64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(-this, SymInteger(a))
+end function
+
+function matrix_sub_scalar_f_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real, intent(in) :: b
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, RealDouble(-b))
+end function
+
+function matrix_sub_scalar_f_right(a, this) result(res)
+    real, intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(-this, RealDouble(a))
+end function
+
+function matrix_sub_scalar_d_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(this, RealDouble(-b))
+end function
+
+function matrix_sub_scalar_d_right(a, this) result(res)
+    real(kind=real64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_left(-this, RealDouble(a))
 end function
 
 end module

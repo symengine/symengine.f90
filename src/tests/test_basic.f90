@@ -202,6 +202,83 @@ subroutine dostuff()
     N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
     M = 2 + M
     call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = M + 2_int64
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = 2_int64 + M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(3.0)), ptr(RealDouble(4.0))])
+    M = M + 2.0
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(3.0)), ptr(RealDouble(4.0))])
+    M = 2.0 + M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(3.0)), ptr(RealDouble(4.0))])
+    M = M + 2.0d0
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(3.0)), ptr(RealDouble(4.0))])
+    M = 2.0d0 + M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(-1)), ptr(SymInteger(-2))])
+    M = -M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(-1)), ptr(SymInteger(0))])
+    M = M - SymInteger(2)
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(0))])
+    M = SymInteger(2) - M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(-1)), ptr(SymInteger(0))])
+    M = M - 2
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(0))])
+    M = 2 - M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(-1)), ptr(SymInteger(0))])
+    M = M - 2_int64
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(0))])
+    M = 2_int64 - M
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(3))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(-1.0)), ptr(RealDouble(1.0))])
+    M = M - 2.0
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(3))])
+    N = DenseMatrix(1, 2, [ptr(RealDouble(1.0)), ptr(RealDouble(-1.0))])
+    M = 2.0 - M
+    call assert_matrix_eq(M, N)
+
+
 end subroutine
 
 
