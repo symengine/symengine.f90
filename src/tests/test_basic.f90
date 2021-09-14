@@ -192,6 +192,16 @@ subroutine dostuff()
     M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
     M = SymInteger(2) + M
     call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = M + 2
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = 2 + M
+    call assert_matrix_eq(M, N)
 end subroutine
 
 

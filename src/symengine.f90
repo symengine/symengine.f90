@@ -307,8 +307,10 @@ contains
     procedure :: str => matrix_str
     procedure :: matrix_assign, matrix_eq
     procedure, pass(this) :: matrix_add_scalar_left, matrix_add_scalar_right
+    procedure, pass(this) :: matrix_add_scalar_i_left, matrix_add_scalar_i_right
     generic :: assignment(=) => matrix_assign
     generic :: operator(+) => matrix_add_scalar_left, matrix_add_scalar_right
+    generic :: operator(+) => matrix_add_scalar_i_left, matrix_add_scalar_i_right
     generic :: operator(==) => matrix_eq
     final :: matrix_free
 end type
@@ -1007,6 +1009,22 @@ function matrix_add_scalar_right(a, this) result(res)
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(this, a)
+end function
+
+function matrix_add_scalar_i_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer, intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_add_scalar_left(this, i)
+end function
+
+function matrix_add_scalar_i_right(a, this) result(res)
+    integer, intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_add_scalar_i_left(this, a)
 end function
 
 function matrix_str(e) result(res)
