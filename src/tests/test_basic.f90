@@ -328,9 +328,6 @@ subroutine dostuff()
     M = 2.0d0 * M
     call assert_matrix_eq(M, N)
 
-   
-   
-   
     M = DenseMatrix(1, 2, [ptr(SymInteger(2)), ptr(SymInteger(4))])
     N = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
     M = M / SymInteger(2)
@@ -359,6 +356,24 @@ subroutine dostuff()
     M = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(2)), ptr(SymInteger(3)), ptr(SymInteger(4))])
     N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(3)), ptr(SymInteger(2)), ptr(SymInteger(4))])
     M = transpose(M)
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(2, 1, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(1, 2, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    M = M * N
+    N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(2)), ptr(SymInteger(2)), ptr(SymInteger(4))])
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(2, 1, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(2, 1, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = M + N
+    N = DenseMatrix(2, 1, [ptr(SymInteger(4)), ptr(SymInteger(6))])
+    call assert_matrix_eq(M, N)
+
+    M = DenseMatrix(2, 1, [ptr(SymInteger(1)), ptr(SymInteger(2))])
+    N = DenseMatrix(2, 1, [ptr(SymInteger(3)), ptr(SymInteger(4))])
+    M = M - N
+    N = DenseMatrix(2, 1, [ptr(SymInteger(-2)), ptr(SymInteger(-2))])
     call assert_matrix_eq(M, N)
 
 end subroutine

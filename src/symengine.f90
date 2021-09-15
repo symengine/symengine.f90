@@ -205,6 +205,16 @@ interface
         type(c_ptr), value :: s, a
         integer(c_long) :: res
     end function
+    function c_dense_matrix_mul_matrix(s, a, b) result(res) bind(c, name='dense_matrix_mul_matrix')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: res
+    end function
+    function c_dense_matrix_add_matrix(s, a, b) result(res) bind(c, name='dense_matrix_add_matrix')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: res
+    end function
 end interface
 
 
@@ -332,6 +342,9 @@ contains
     procedure, pass(this) :: matrix_mul_scalar_i64_left, matrix_mul_scalar_i64_right
     procedure, pass(this) :: matrix_mul_scalar_f_left, matrix_mul_scalar_f_right
     procedure, pass(this) :: matrix_mul_scalar_d_left, matrix_mul_scalar_d_right
+    procedure :: matrix_mul_dense
+    procedure :: matrix_add_dense
+    procedure :: matrix_sub_dense
     procedure, pass(this) :: matrix_div_scalar_left
     procedure, pass(this) :: matrix_div_scalar_i_left
     procedure, pass(this) :: matrix_div_scalar_i64_left
@@ -343,17 +356,20 @@ contains
     generic :: operator(+) => matrix_add_scalar_i64_left, matrix_add_scalar_i64_right
     generic :: operator(+) => matrix_add_scalar_f_left, matrix_add_scalar_f_right
     generic :: operator(+) => matrix_add_scalar_d_left, matrix_add_scalar_d_right
+    generic :: operator(+) => matrix_add_dense
     generic :: operator(-) => matrix_neg
     generic :: operator(-) => matrix_sub_scalar_left, matrix_sub_scalar_right
     generic :: operator(-) => matrix_sub_scalar_i_left, matrix_sub_scalar_i_right
     generic :: operator(-) => matrix_sub_scalar_i64_left, matrix_sub_scalar_i64_right
     generic :: operator(-) => matrix_sub_scalar_f_left, matrix_sub_scalar_f_right
     generic :: operator(-) => matrix_sub_scalar_d_left, matrix_sub_scalar_d_right
+    generic :: operator(-) => matrix_sub_dense
     generic :: operator(*) => matrix_mul_scalar_left, matrix_mul_scalar_right
     generic :: operator(*) => matrix_mul_scalar_i_left, matrix_mul_scalar_i_right
     generic :: operator(*) => matrix_mul_scalar_i64_left, matrix_mul_scalar_i64_right
     generic :: operator(*) => matrix_mul_scalar_f_left, matrix_mul_scalar_f_right
     generic :: operator(*) => matrix_mul_scalar_d_left, matrix_mul_scalar_d_right
+    generic :: operator(*) => matrix_mul_dense
     generic :: operator(/) => matrix_div_scalar_left
     generic :: operator(/) => matrix_div_scalar_i_left
     generic :: operator(/) => matrix_div_scalar_i64_left
@@ -1371,6 +1387,35 @@ function transpose_dense(a) result(res)
     exception = c_dense_matrix_transpose(res%ptr, a%ptr)
     call handle_exception(exception)
     res%tmp = .true.
+end function
+
+function matrix_mul_dense(a, b) result(res)
+    class(DenseMatrix), intent(in) :: a, b
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_mul_matrix(res%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_add_dense(a, b) result(res)
+    class(DenseMatrix), intent(in) :: a, b
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_add_matrix(res%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_sub_dense(a, b) result(res)
+    class(DenseMatrix), intent(in) :: a, b
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    type(DenseMatrix) :: neg
+    neg = -b
+    res = matrix_add_dense(a, neg)
 end function
 
 end module
