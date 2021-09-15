@@ -200,6 +200,11 @@ interface
         type(c_ptr), value :: lhs, rhs
         integer(c_int) :: res
     end function
+    function c_dense_matrix_transpose(s, a) result(res) bind(c, name='dense_matrix_transpose')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: res
+    end function
 end interface
 
 
@@ -362,10 +367,15 @@ interface DenseMatrix
     module procedure matrix_new
 end interface
 
+interface transpose
+    module procedure transpose_dense
+end interface
+
+
 private
 public :: ptr
 public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e, SymComplex
-public :: DenseMatrix
+public :: DenseMatrix, transpose
 
 contains
 
@@ -1351,6 +1361,16 @@ function matrix_div_scalar_d_left(this, b) result(res)
     type(basic) :: i
     i = RealDouble(b)
     res = matrix_div_scalar_left(this, i)
+end function
+
+function transpose_dense(a) result(res)
+    class(DenseMatrix), intent(in) :: a
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_transpose(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
 end function
 
 end module

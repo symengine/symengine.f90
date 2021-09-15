@@ -356,6 +356,11 @@ subroutine dostuff()
     M = M / 2.0d0
     call assert_matrix_eq(M, N)
 
+    M = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(2)), ptr(SymInteger(3)), ptr(SymInteger(4))])
+    N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(3)), ptr(SymInteger(2)), ptr(SymInteger(4))])
+    M = transpose(M)
+    call assert_matrix_eq(M, N)
+
 end subroutine
 
 
