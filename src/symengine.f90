@@ -1,7 +1,7 @@
 module symengine
 
 use iso_c_binding, only: c_size_t, c_int, c_long, c_double, c_char, c_ptr, c_null_ptr, c_null_char, c_f_pointer, c_associated
-use iso_fortran_env, only: int64, real64
+use iso_fortran_env, only: int32, int64, real32, real64
 implicit none
 
 interface
@@ -322,6 +322,16 @@ contains
     procedure, pass(this) :: matrix_sub_scalar_i64_left, matrix_sub_scalar_i64_right
     procedure, pass(this) :: matrix_sub_scalar_f_left, matrix_sub_scalar_f_right
     procedure, pass(this) :: matrix_sub_scalar_d_left, matrix_sub_scalar_d_right
+    procedure, pass(this) :: matrix_mul_scalar_left, matrix_mul_scalar_right
+    procedure, pass(this) :: matrix_mul_scalar_i_left, matrix_mul_scalar_i_right
+    procedure, pass(this) :: matrix_mul_scalar_i64_left, matrix_mul_scalar_i64_right
+    procedure, pass(this) :: matrix_mul_scalar_f_left, matrix_mul_scalar_f_right
+    procedure, pass(this) :: matrix_mul_scalar_d_left, matrix_mul_scalar_d_right
+    procedure, pass(this) :: matrix_div_scalar_left
+    procedure, pass(this) :: matrix_div_scalar_i_left
+    procedure, pass(this) :: matrix_div_scalar_i64_left
+    procedure, pass(this) :: matrix_div_scalar_f_left
+    procedure, pass(this) :: matrix_div_scalar_d_left
     generic :: assignment(=) => matrix_assign
     generic :: operator(+) => matrix_add_scalar_left, matrix_add_scalar_right
     generic :: operator(+) => matrix_add_scalar_i_left, matrix_add_scalar_i_right
@@ -334,6 +344,16 @@ contains
     generic :: operator(-) => matrix_sub_scalar_i64_left, matrix_sub_scalar_i64_right
     generic :: operator(-) => matrix_sub_scalar_f_left, matrix_sub_scalar_f_right
     generic :: operator(-) => matrix_sub_scalar_d_left, matrix_sub_scalar_d_right
+    generic :: operator(*) => matrix_mul_scalar_left, matrix_mul_scalar_right
+    generic :: operator(*) => matrix_mul_scalar_i_left, matrix_mul_scalar_i_right
+    generic :: operator(*) => matrix_mul_scalar_i64_left, matrix_mul_scalar_i64_right
+    generic :: operator(*) => matrix_mul_scalar_f_left, matrix_mul_scalar_f_right
+    generic :: operator(*) => matrix_mul_scalar_d_left, matrix_mul_scalar_d_right
+    generic :: operator(/) => matrix_div_scalar_left
+    generic :: operator(/) => matrix_div_scalar_i_left
+    generic :: operator(/) => matrix_div_scalar_i64_left
+    generic :: operator(/) => matrix_div_scalar_f_left
+    generic :: operator(/) => matrix_div_scalar_d_left
     generic :: operator(==) => matrix_eq
     final :: matrix_free
 end type
@@ -430,14 +450,14 @@ end function
 
 function basic_add_i_left(this, b) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_add(this, SymInteger(b))
 end function
 
 function basic_add_i_right(b, this) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_add(this, SymInteger(b))
 end function
@@ -458,14 +478,14 @@ end function
 
 function basic_add_f_left(this, b)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: basic_add_f_left
     basic_add_f_left = basic_add(this, RealDouble(b))
 end function
 
 function basic_add_f_right(b, this)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: basic_add_f_right
     basic_add_f_right = basic_add(this, RealDouble(b))
 end function
@@ -496,14 +516,14 @@ end function
 
 function basic_sub_i_left(this, b) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_sub(this, SymInteger(b))
 end function
 
 function basic_sub_i_right(b, this) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_sub(SymInteger(b), this)
 end function
@@ -524,14 +544,14 @@ end function
 
 function basic_sub_f_left(this, b) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_sub(this, RealDouble(b))
 end function
 
 function basic_sub_f_right(b, this) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_sub(RealDouble(b), this)
 end function
@@ -573,14 +593,14 @@ end function
 
 function basic_mul_i_left(this, b) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_mul(this, SymInteger(b))
 end function
 
 function basic_mul_i_right(b, this) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_mul(SymInteger(b), this)
 end function
@@ -601,14 +621,14 @@ end function
 
 function basic_mul_f_left(this, b) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_mul(this, RealDouble(b))
 end function
 
 function basic_mul_f_right(b, this) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_mul(RealDouble(b), this)
 end function
@@ -639,14 +659,14 @@ end function
 
 function basic_div_i_left(this, b) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_div(this, SymInteger(b))
 end function
 
 function basic_div_i_right(b, this) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_div(SymInteger(b), this)
 end function
@@ -667,14 +687,14 @@ end function
 
 function basic_div_f_left(this, b) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_div(this, RealDouble(b))
 end function
 
 function basic_div_f_right(b, this) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_div(RealDouble(b), this)
 end function
@@ -705,14 +725,14 @@ end function
 
 function basic_pow_i_left(this, b) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_pow(this, SymInteger(b))
 end function
 
 function basic_pow_i_right(b, this) result(res)
     class(basic), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(basic) :: res
     res = basic_pow(SymInteger(b), this)
 end function
@@ -733,14 +753,14 @@ end function
 
 function basic_pow_f_left(this, b) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_pow(this, RealDouble(b))
 end function
 
 function basic_pow_f_right(b, this) result(res)
     class(basic), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(basic) :: res
     res = basic_pow(RealDouble(b), this)
 end function
@@ -905,13 +925,13 @@ function complex_new(re, im) result(res)
 end function
 
 function complex_new_i_i(re, im) result(res)
-    integer :: re, im
+    integer(kind=int32) :: re, im
     type(basic) :: res
     res = complex_new(SymInteger(re), SymInteger(im))
 end function
 
 function complex_new_i_i64(re, im) result(res)
-    integer :: re
+    integer(kind=int32) :: re
     integer(kind=int64) :: im
     type(basic) :: res
     res = complex_new(SymInteger(re), SymInteger(im))
@@ -919,7 +939,7 @@ end function
 
 function complex_new_i64_i(re, im) result(res)
     integer(kind=int64) :: re
-    integer :: im
+    integer(kind=int32) :: im
     type(basic) :: res
     res = complex_new(SymInteger(re), SymInteger(im))
 end function
@@ -1036,7 +1056,7 @@ end function
 
 function matrix_add_scalar_i_left(this, b) result(res)
     class(DenseMatrix), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(DenseMatrix) :: res
     type(basic) :: i
     i = SymInteger(b)
@@ -1044,7 +1064,7 @@ function matrix_add_scalar_i_left(this, b) result(res)
 end function
 
 function matrix_add_scalar_i_right(a, this) result(res)
-    integer, intent(in) :: a
+    integer(kind=int32), intent(in) :: a
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_i_left(this, a)
@@ -1068,7 +1088,7 @@ end function
 
 function matrix_add_scalar_f_left(this, b) result(res)
     class(DenseMatrix), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(DenseMatrix) :: res
     type(basic) :: i
     i = RealDouble(b)
@@ -1076,7 +1096,7 @@ function matrix_add_scalar_f_left(this, b) result(res)
 end function
 
 function matrix_add_scalar_f_right(a, this) result(res)
-    real, intent(in) :: a
+    real(kind=real32), intent(in) :: a
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_f_left(this, a)
@@ -1148,13 +1168,13 @@ end function
 
 function matrix_sub_scalar_i_left(this, b) result(res)
     class(DenseMatrix), intent(in) :: this
-    integer, intent(in) :: b
+    integer(kind=int32), intent(in) :: b
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(this, SymInteger(-b))
 end function
 
 function matrix_sub_scalar_i_right(a, this) result(res)
-    integer, intent(in) :: a
+    integer(kind=int32), intent(in) :: a
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(-this, SymInteger(a))
@@ -1176,13 +1196,13 @@ end function
 
 function matrix_sub_scalar_f_left(this, b) result(res)
     class(DenseMatrix), intent(in) :: this
-    real, intent(in) :: b
+    real(kind=real32), intent(in) :: b
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(this, RealDouble(-b))
 end function
 
 function matrix_sub_scalar_f_right(a, this) result(res)
-    real, intent(in) :: a
+    real(kind=real32), intent(in) :: a
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(-this, RealDouble(a))
@@ -1200,6 +1220,137 @@ function matrix_sub_scalar_d_right(a, this) result(res)
     class(DenseMatrix), intent(in) :: this
     type(DenseMatrix) :: res
     res = matrix_add_scalar_left(-this, RealDouble(a))
+end function
+
+function matrix_mul_scalar_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    class(Basic), intent(in) :: b
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, b%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_mul_scalar_right(a, this) result(res)
+    class(Basic), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_mul_scalar_left(this, a)
+end function
+
+function matrix_mul_scalar_i_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int32), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_mul_scalar_left(this, i)
+end function
+
+function matrix_mul_scalar_i_right(a, this) result(res)
+    integer(kind=int32), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_mul_scalar_i_left(this, a)
+end function
+
+function matrix_mul_scalar_i64_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_mul_scalar_left(this, i)
+end function
+
+function matrix_mul_scalar_i64_right(a, this) result(res)
+    integer(kind=int64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_mul_scalar_i64_left(this, a)
+end function
+
+function matrix_mul_scalar_f_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real32), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_mul_scalar_left(this, i)
+end function
+
+function matrix_mul_scalar_f_right(a, this) result(res)
+    real(kind=real32), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_mul_scalar_f_left(this, a)
+end function
+
+function matrix_mul_scalar_d_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_mul_scalar_left(this, i)
+end function
+
+function matrix_mul_scalar_d_right(a, this) result(res)
+    real(kind=real64), intent(in) :: a
+    class(DenseMatrix), intent(in) :: this
+    type(DenseMatrix) :: res
+    res = matrix_mul_scalar_d_left(this, a)
+end function
+
+function matrix_div_scalar_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    class(Basic), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(Basic) :: inverse
+    integer(c_long) :: exception
+    inverse = 1 / b
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, inverse%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function matrix_div_scalar_i_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int32), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_div_scalar_left(this, i)
+end function
+
+function matrix_div_scalar_i64_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = SymInteger(b)
+    res = matrix_div_scalar_left(this, i)
+end function
+
+function matrix_div_scalar_f_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real32), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_div_scalar_left(this, i)
+end function
+
+function matrix_div_scalar_d_left(this, b) result(res)
+    class(DenseMatrix), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    type(DenseMatrix) :: res
+    type(basic) :: i
+    i = RealDouble(b)
+    res = matrix_div_scalar_left(this, i)
 end function
 
 end module
