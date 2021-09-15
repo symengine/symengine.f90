@@ -376,6 +376,18 @@ subroutine dostuff()
     N = DenseMatrix(2, 1, [ptr(SymInteger(-2)), ptr(SymInteger(-2))])
     call assert_matrix_eq(M, N)
 
+    M = ones(2, 2)
+    N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(1)), ptr(SymInteger(1)), ptr(SymInteger(1))])
+    call assert_matrix_eq(M, N)
+
+    M = zeros(2, 2)
+    N = DenseMatrix(2, 2, [ptr(SymInteger(0)), ptr(SymInteger(0)), ptr(SymInteger(0)), ptr(SymInteger(0))])
+    call assert_matrix_eq(M, N)
+
+    M = eye(2, 0)
+    N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(0)), ptr(SymInteger(0)), ptr(SymInteger(1))])
+    call assert_matrix_eq(M, N)
+
 end subroutine
 
 

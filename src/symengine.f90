@@ -215,6 +215,25 @@ interface
         type(c_ptr), value :: s, a, b
         integer(c_long) :: res
     end function
+    function c_dense_matrix_ones(s, r, c) result(res) bind(c, name='dense_matrix_ones')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s
+        integer(c_long), value :: r, c
+        integer(c_long) :: res
+    end function
+    function c_dense_matrix_zeros(s, r, c) result(res) bind(c, name='dense_matrix_zeros')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s
+        integer(c_long), value :: r, c
+        integer(c_long) :: res
+    end function
+    function c_dense_matrix_eye(s, n, m, k) result(res) bind(c, name='dense_matrix_eye')
+        import :: c_long, c_int, c_ptr
+        type(c_ptr), value :: s
+        integer(c_long), value :: n, m
+        integer(c_int), value :: k
+        integer(c_long) :: res
+    end function
 end interface
 
 
@@ -391,7 +410,7 @@ end interface
 private
 public :: ptr
 public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e, SymComplex
-public :: DenseMatrix, transpose
+public :: DenseMatrix, transpose, ones, zeros, eye
 
 contains
 
@@ -1417,5 +1436,37 @@ function matrix_sub_dense(a, b) result(res)
     neg = -b
     res = matrix_add_dense(a, neg)
 end function
+
+function ones(r, c) result(res)
+    integer(kind=int32) :: r, c
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_ones(res%ptr, int(r, 8), int(c, 8))
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function zeros(r, c) result(res)
+    integer(kind=int32) :: r, c
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_zeros(res%ptr, int(r, 8), int(c, 8))
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function eye(n, k) result(res)
+    integer(kind=int32) :: n
+    integer(kind=int32) :: k
+    type(DenseMatrix) :: res
+    integer(c_long) :: exception
+    res%ptr = c_dense_matrix_new()
+    exception = c_dense_matrix_eye(res%ptr, int(n, 8), int(n, 8), k)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
 
 end module
