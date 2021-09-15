@@ -104,6 +104,18 @@ interface
         import :: c_ptr
         type(c_ptr), value :: s
     end subroutine
+    subroutine c_basic_const_euler_gamma(s) bind(c, name='basic_const_EulerGamma')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_const_catalan(s) bind(c, name='basic_const_Catalan')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_const_goldenratio(s) bind(c, name='basic_const_GoldenRatio')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
     function c_basic_max(s, d) bind(c, name='basic_max')
         import :: c_ptr, c_long
         type(c_ptr), value :: s, d
@@ -409,7 +421,8 @@ end interface
 
 private
 public :: ptr
-public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, pi, e, SymComplex
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, SymComplex
+public :: pi, e, eulergamma, catalan, goldenratio
 public :: DenseMatrix, transpose, ones, zeros, eye
 
 contains
@@ -882,6 +895,27 @@ function e()
     e = Basic()
     call c_basic_const_e(e%ptr)
     e%tmp = .true.
+end function
+
+function eulergamma() result(res)
+    type(basic) :: res
+    res = Basic()
+    call c_basic_const_euler_gamma(res%ptr)
+    res%tmp = .true.
+end function
+
+function catalan() result(res)
+    type(basic) :: res
+    res = Basic()
+    call c_basic_const_catalan(res%ptr)
+    res%tmp = .true.
+end function
+
+function goldenratio() result(res)
+    type(basic) :: res
+    res = Basic()
+    call c_basic_const_goldenratio(res%ptr)
+    res%tmp = .true.
 end function
 
 function evalf(b, bits, r)

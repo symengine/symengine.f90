@@ -152,6 +152,18 @@ subroutine dostuff()
     b = parse("e")
     call assert_eq(a, b)
 
+    a = eulergamma()
+    b = parse("EulerGamma")
+    call assert_eq(a, b)
+
+    a = catalan()
+    b = parse("Catalan")
+    call assert_eq(a, b)
+
+    a = goldenratio()
+    b = parse("GoldenRatio")
+    call assert_eq(a, b)
+
     a = max([ptr(SymInteger(2)), ptr(SymInteger(3))])
     b = parse("3")
     call assert_eq(a, b)
