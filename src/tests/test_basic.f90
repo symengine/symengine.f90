@@ -32,6 +32,7 @@ subroutine dostuff()
     use iso_fortran_env, only: int64
     type(Basic) :: a, b, c, d
     type(DenseMatrix) :: M, N
+    type(SetBasic) :: set
 
     a = SymInteger(12)
     b = Symbol('x')
@@ -400,6 +401,14 @@ subroutine dostuff()
     N = DenseMatrix(2, 2, [ptr(SymInteger(1)), ptr(SymInteger(0)), ptr(SymInteger(0)), ptr(SymInteger(1))])
     call assert_matrix_eq(M, N)
 
+    a = Symbol("x") + Symbol("y")
+    set = a%free_symbols()
+    a = set%get(1)
+    b = Symbol("x")
+    call assert_eq(a, b)
+    a = set%get(2)
+    b = Symbol("y")
+    call assert_eq(a, b)
 end subroutine
 
 

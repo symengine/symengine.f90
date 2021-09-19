@@ -126,6 +126,11 @@ interface
         type(c_ptr), value :: s, e, a, b
         integer(c_long) :: c_basic_subs2
     end function
+    function c_basic_free_symbols(self, symbols) result(res) bind(c, name='basic_free_symbols')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: self, symbols
+        integer(c_long) :: res
+    end function
     function c_integer_set_si(s, i) bind(c, name='integer_set_si')
         import :: c_long, c_ptr
         type(c_ptr), value :: s
@@ -159,6 +164,29 @@ interface
         type(c_ptr), value :: s
         character(kind=c_char), dimension(*) :: c
         integer(c_long) :: c_symbol_set
+    end function
+    function c_setbasic_new() result(res) bind(c, name='setbasic_new')
+        import :: c_ptr
+        type(c_ptr) :: res
+    end function
+    subroutine c_setbasic_free(s) bind(c, name='setbasic_free')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_setbasic_get(s, n, r) bind(c, name='setbasic_get')
+        import :: c_int, c_ptr
+        type(c_ptr), value :: s, r
+        integer(c_int), value :: n
+    end subroutine
+    function c_setbasic_insert(self, v) result(res) bind(c, name='setbasic_insert')
+        import :: c_int, c_ptr
+        type(c_ptr), value :: self, v
+        integer(c_int) :: res
+    end function
+    function c_setbasic_size(s) result(res) bind(c, name='setbasic_size')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s
+        integer(c_long) :: res
     end function
     function c_vecbasic_new() bind(c, name='vecbasic_new')
         import c_ptr
@@ -249,13 +277,15 @@ interface
 end interface
 
 
+
 type Basic
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
 contains
-    procedure :: str, subs, evalf, basic_assign, basic_add
-    procedure :: basic_sub, basic_neg, basic_mul
+    procedure :: str, subs, evalf, basic_assign
+    procedure :: basic_add, basic_sub, basic_neg, basic_mul
     procedure :: basic_div, basic_pow, basic_eq, basic_neq
+    procedure, pass(this) :: free_symbols => basic_free_symbols
     procedure, pass(this) :: basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
     procedure, pass(this) :: basic_add_f_left, basic_add_f_right, basic_add_d_left, basic_add_d_right
     procedure, pass(this) :: basic_sub_i_left, basic_sub_i_right, basic_sub_i64_left, basic_sub_i64_right
@@ -351,6 +381,23 @@ interface Symbol
     module procedure symbol_new
 end interface
 
+
+type SetBasic
+    type(c_ptr) :: ptr = c_null_ptr
+    logical :: tmp = .false.
+contains
+    procedure :: setbasic_assign
+    procedure, pass(this) :: size => setbasic_size
+    procedure, pass(this) :: get => setbasic_get
+    generic :: assignment(=) => setbasic_assign
+    final :: setbasic_free
+end type
+
+interface SetBasic
+   module procedure setbasic_new
+end interface
+
+
 type DenseMatrix
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
@@ -423,6 +470,7 @@ private
 public :: ptr
 public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, SymComplex
 public :: pi, e, eulergamma, catalan, goldenratio
+public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
 
 contains
@@ -447,6 +495,50 @@ subroutine handle_exception(a)
         error stop "Parse error"
     end if
 end subroutine
+
+function setbasic_new() result(new)
+    type(SetBasic) :: new
+    new%ptr = c_setbasic_new()
+end function
+
+subroutine setbasic_free(this)
+    type(SetBasic) :: this
+    call c_setbasic_free(this%ptr)
+end subroutine
+
+subroutine setbasic_assign(a, b)
+    class(SetBasic), intent(inout) :: a
+    class(SetBasic), intent(in) :: b
+    integer(c_long) :: exception
+    integer :: i, dummy
+    type(Basic) :: temp
+    if (c_associated(a%ptr)) then
+        call setbasic_free(a)
+    end if
+    a%ptr = c_setbasic_new()
+    do i = 1, b%size()
+        temp = b%get(i)
+        dummy = c_setbasic_insert(a%ptr, temp%ptr)
+    end do
+    if (b%tmp) then
+        call setbasic_free(b)
+    end if
+end subroutine
+
+function setbasic_size(this) result(res)
+    class(SetBasic) :: this
+    integer :: res
+    res = int(c_setbasic_size(this%ptr))
+end function
+
+function setbasic_get(this, n) result(res)
+    class(SetBasic) :: this
+    integer :: n
+    type(Basic) :: res
+    res = Basic()
+    call c_setbasic_get(this%ptr, n - 1, res%ptr)
+    res%tmp = .true.
+end function
 
 function basic_new() result(new)
     type(Basic) :: new
@@ -480,6 +572,16 @@ function subs(e, a, b)
     exception = c_basic_subs2(subs%ptr, e%ptr, a%ptr, b%ptr) 
     call handle_exception(exception)
     subs%tmp = .true.
+end function
+
+function basic_free_symbols(this) result(res)
+    class(Basic) :: this
+    type(SetBasic) :: res
+    integer(c_long) :: exception
+    res = SetBasic()
+    exception = c_basic_free_symbols(this%ptr, res%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
 end function
 
 subroutine basic_assign(a, b)
