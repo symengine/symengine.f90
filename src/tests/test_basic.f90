@@ -83,6 +83,34 @@ subroutine dostuff()
     c = parse('cos(x)')
     call assert_eq(cos(b), c)
 
+    c = parse('atan2(x, 12)')
+    call assert_eq(atan2(b, a), c)
+
+    c = parse('atan2(x, 12)')
+    call assert_eq(atan2(b, 12), c)
+    call assert_eq(atan2(b, 12_int64), c)
+
+    c = parse('atan2(12, x)')
+    call assert_eq(atan2(12, b), c)
+    call assert_eq(atan2(12_int64, b), c)
+
+    c = parse('atan2(x, 12.0)')
+    call assert_eq(atan2(b, 12.0), c)
+    call assert_eq(atan2(b, 12.0d0), c)
+
+    c = parse('atan2(12.0, x)')
+    call assert_eq(atan2(12.0, b), c)
+    call assert_eq(atan2(12.0d0, b), c)
+
+    c = parse('exp(x)')
+    call assert_eq(exp(b), c)
+
+    c = parse('log(x)')
+    call assert_eq(log(b), c)
+
+    c = parse('abs(x)')
+    call assert_eq(abs(b), c)
+
     c = parse('sqrt(x)')
     call assert_eq(sqrt(b), c)
 

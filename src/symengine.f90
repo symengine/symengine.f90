@@ -83,10 +83,30 @@ interface
         type(c_ptr), value :: s, a
         integer(c_long) :: c_basic_cos
     end function
+    function c_basic_exp(s, a) result(res) bind(c, name='basic_exp')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: res
+    end function
+    function c_basic_log(s, a) result(res) bind(c, name='basic_log')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: res
+    end function
+    function c_basic_abs(s, a) result(res) bind(c, name='basic_abs')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: res
+    end function
     function c_basic_sqrt(s, a) bind(c, name='basic_sqrt')
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a
         integer(c_long) :: c_basic_sqrt
+    end function
+    function c_basic_atan2(s, a, b) result(res) bind(c, name='basic_atan2')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: res
     end function
     function c_basic_evalf(s, b, bits, domain) bind(c, name='basic_evalf')
         import :: c_long, c_int, c_ptr
@@ -330,8 +350,32 @@ interface cos
     module procedure basic_cos
 end interface
 
+interface exp
+    module procedure basic_exp
+end interface
+
+interface log
+    module procedure basic_log
+end interface
+
+interface abs
+    module procedure basic_abs
+end interface
+
 interface sqrt
     module procedure basic_sqrt
+end interface
+
+interface atan2
+    module procedure basic_atan2
+    module procedure basic_atan2_i_left
+    module procedure basic_atan2_i_right
+    module procedure basic_atan2_i64_left
+    module procedure basic_atan2_i64_right
+    module procedure basic_atan2_f_left
+    module procedure basic_atan2_f_right
+    module procedure basic_atan2_d_left
+    module procedure basic_atan2_d_right
 end interface
 
 interface max
@@ -468,7 +512,7 @@ end interface
 
 private
 public :: ptr
-public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, sqrt, max, SymComplex
+public :: Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, exp, log, abs, sqrt, atan2, max, SymComplex
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
@@ -975,14 +1019,126 @@ function basic_cos(a)
     basic_cos%tmp = .true.
 end function
 
-function basic_sqrt(a)
+function basic_exp(a) result(res)
     class(basic), intent(in) :: a
-    type(basic) :: basic_sqrt
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_sqrt = Basic()
-    exception = c_basic_sqrt(basic_sqrt%ptr, a%ptr)
+    res = Basic()
+    exception = c_basic_exp(res%ptr, a%ptr)
     call handle_exception(exception)
-    basic_sqrt%tmp = .true.
+    res%tmp = .true.
+end function
+
+function basic_log(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_log(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_abs(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_abs(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_sqrt(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_sqrt(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_atan2(a, b) result(res)
+    class(basic), intent(in) :: a, b
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_atan2(res%ptr, a%ptr, b%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_atan2_i_left(a, b) result(res)
+    class(basic), intent(in) :: a
+    integer(kind=int32), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = SymInteger(b)
+    res = basic_atan2(a, temp)
+end function
+
+function basic_atan2_i_right(a, b) result(res)
+    integer(kind=int32), intent(in) :: a
+    class(basic), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = SymInteger(a)
+    res = basic_atan2(temp, b)
+end function
+
+function basic_atan2_i64_left(a, b) result(res)
+    class(basic), intent(in) :: a
+    integer(kind=int64), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = SymInteger(b)
+    res = basic_atan2(a, temp)
+end function
+
+function basic_atan2_i64_right(a, b) result(res)
+    integer(kind=int64), intent(in) :: a
+    class(basic), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = SymInteger(a)
+    res = basic_atan2(temp, b)
+end function
+
+function basic_atan2_f_left(a, b) result(res)
+    class(basic), intent(in) :: a
+    real(kind=real32), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = RealDouble(b)
+    res = basic_atan2(a, temp)
+end function
+
+function basic_atan2_f_right(a, b) result(res)
+    real(kind=real32), intent(in) :: a
+    class(basic), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = RealDouble(a)
+    res = basic_atan2(temp, b)
+end function
+
+function basic_atan2_d_left(a, b) result(res)
+    class(basic), intent(in) :: a
+    real(kind=real64), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = RealDouble(b)
+    res = basic_atan2(a, temp)
+end function
+
+function basic_atan2_d_right(a, b) result(res)
+    real(kind=real64), intent(in) :: a
+    class(basic), intent(in) :: b
+    type(basic) :: res
+    type(basic) :: temp
+    temp = RealDouble(a)
+    res = basic_atan2(temp, b)
 end function
 
 function pi()
