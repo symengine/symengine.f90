@@ -1,5 +1,6 @@
 module symengine
 
+use exceptions
 use iso_c_binding, only: c_size_t, c_int, c_long, c_double, c_char, c_ptr, c_null_ptr, c_null_char, c_f_pointer, c_associated
 use iso_fortran_env, only: int32, int64, real32, real64
 implicit none
@@ -524,21 +525,6 @@ function ptr(a) result(res)
     type(c_ptr) :: res
     res = a%ptr
 end function
-
-subroutine handle_exception(a)
-    integer(c_long) :: a
-    if (a == 1) then
-        error stop "Runtime error"
-    else if (a == 2) then
-        error stop "Division by zero"
-    else if (a == 3) then
-        error stop "Not implemented"
-    else if (a == 4) then
-        error stop "Domain error"
-    else if (a == 5) then
-        error stop "Parse error"
-    end if
-end subroutine
 
 function setbasic_new() result(new)
     type(SetBasic) :: new
