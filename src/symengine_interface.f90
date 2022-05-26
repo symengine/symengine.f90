@@ -1,6 +1,6 @@
 module symengine_interface
 
-use iso_c_binding, only: c_size_t, c_ptr, c_long, c_int, c_char, c_double
+use iso_c_binding, only: c_size_t, c_ptr, c_long, c_int, c_char, c_double, c_f_pointer
 implicit none
 
 interface
@@ -293,7 +293,20 @@ interface
         integer(c_int), value :: k
         integer(c_long) :: res
     end function
-
 end interface 
+
+contains
+
+function convert_string(cstring) result(res)
+    type(c_ptr) :: cstring
+    integer :: nchars
+    character, pointer, dimension(:) :: tempstr
+    character(:), allocatable :: res
+
+    nchars = c_strlen(cstring)
+    call c_f_pointer(cstring, tempstr, [nchars])
+    allocate(character(len=nchars) :: res)
+    res = transfer(tempstr(1:nchars), res)
+end function
 
 end module

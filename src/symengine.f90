@@ -287,17 +287,14 @@ subroutine basic_free(this)
     call c_basic_free_heap(this%ptr)
 end subroutine
 
-function str(e)
+function str(e) result(res)
     class(Basic) :: e
     character, pointer, dimension(:) :: tempstr
-    character(:), allocatable :: str
+    character(:), allocatable :: res
     type(c_ptr) :: cstring
     integer :: nchars
     cstring = c_basic_str(e%ptr)
-    nchars = c_strlen(cstring)
-    call c_f_pointer(cstring, tempstr, [nchars])
-    allocate(character(len=nchars) :: str)
-    str = transfer(tempstr(1:nchars), str)
+    res = convert_string(cstring)
     call c_basic_str_free(cstring)
 end function
 
@@ -1155,10 +1152,7 @@ function matrix_str(e) result(res)
     type(c_ptr) :: cstring
     integer :: nchars
     cstring = c_dense_matrix_str(e%ptr)
-    nchars = c_strlen(cstring)
-    call c_f_pointer(cstring, tempstr, [nchars])
-    allocate(character(len=nchars) :: res)
-    res = transfer(tempstr(1:nchars), res)
+    res = convert_string(cstring)
     call c_basic_str_free(cstring)
 end function
 
