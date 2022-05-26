@@ -83,10 +83,22 @@ interface RealDouble
     module procedure real_new_f
 end interface
 
+type, extends(Basic) :: SymComplex
+end type SymComplex
+
+interface SymComplex
+    module procedure complex_new
+    module procedure complex_new_i_i
+    module procedure complex_new_i64_i
+    module procedure complex_new_i_i64
+    module procedure complex_new_i64_i64
+end interface
+
+
 
 
 private
-public :: ptr, Basic, SetBasic, SymInteger, RealDouble
+public :: ptr, Basic, SetBasic, SymInteger, RealDouble, SymComplex
 
 contains
 
@@ -140,6 +152,41 @@ function real_new_f(f)
     real_new_f%tmp = .true.
 end function
 
+function complex_new(re, im) result(res)
+    class(basic) :: re, im
+    type(basic) :: res
+    integer(c_long) :: exception
+    res%ptr = c_basic_new_heap()
+    exception = c_complex_set(res%ptr, re%ptr, im%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function complex_new_i_i(re, im) result(res)
+    integer(kind=int32) :: re, im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i_i64(re, im) result(res)
+    integer(kind=int32) :: re
+    integer(kind=int64) :: im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i64_i(re, im) result(res)
+    integer(kind=int64) :: re
+    integer(kind=int32) :: im
+    type(basic) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
+
+function complex_new_i64_i64(re, im) result(res)
+    integer(kind=int64) :: re, im
+    type(SymComplex) :: res
+    res = complex_new(SymInteger(re), SymInteger(im))
+end function
 
 function ptr(a) result(res)
     class(Basic) :: a
