@@ -52,24 +52,24 @@ public :: sin, cos, exp, log, abs, sqrt, atan2, max
 
 contains
 
-function basic_sin(a)
+function basic_sin(a) result(res)
     class(basic), intent(in) :: a
-    type(basic) :: basic_sin
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_sin = Basic()
-    exception = c_basic_sin(basic_sin%ptr, a%ptr)
+    res = Basic()
+    exception = c_basic_sin(res%ptr, a%ptr)
     call handle_exception(exception)
-    basic_sin%tmp = .true.
+    res%tmp = .true.
 end function
 
-function basic_cos(a)
+function basic_cos(a) result(res)
     class(basic), intent(in) :: a
-    type(basic) :: basic_cos
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_cos = Basic()
-    exception = c_basic_cos(basic_cos%ptr, a%ptr)
+    res = Basic()
+    exception = c_basic_cos(res%ptr, a%ptr)
     call handle_exception(exception)
-    basic_cos%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_exp(a) result(res)
@@ -194,9 +194,9 @@ function basic_atan2_d_right(a, b) result(res)
     res = basic_atan2(temp, b)
 end function
 
-function basic_max(d)
+function basic_max(d) result(res)
     type(c_ptr), dimension(:) :: d
-    type(Basic) :: basic_max
+    type(Basic) :: res
     integer :: i
     type(c_ptr) :: vec
     integer(c_long) :: exception
@@ -207,11 +207,11 @@ function basic_max(d)
         call handle_exception(exception)
     end do
 
-    basic_max = Basic()
-    exception = c_basic_max(basic_max%ptr, vec)
+    res = Basic()
+    exception = c_basic_max(res%ptr, vec)
     call c_vecbasic_free(vec)
     call handle_exception(exception)
-    basic_max%tmp = .true.
+    res%tmp = .true.
 end function
 
 end module
