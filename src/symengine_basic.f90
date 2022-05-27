@@ -18,6 +18,9 @@ contains
     procedure, pass(this) :: basic_eq_i_left, basic_eq_i_right, basic_eq_i64_left, basic_eq_i64_right
     procedure, pass(this) :: basic_eq_f_left, basic_eq_f_right, basic_eq_d_left, basic_eq_d_right
     procedure, pass(this) :: basic_eq_c_left, basic_eq_c_right, basic_eq_c64_left, basic_eq_c64_right
+    procedure, pass(this) :: basic_neq_i_left, basic_neq_i_right, basic_neq_i64_left, basic_neq_i64_right
+    procedure, pass(this) :: basic_neq_f_left, basic_neq_f_right, basic_neq_d_left, basic_neq_d_right
+    procedure, pass(this) :: basic_neq_c_left, basic_neq_c_right, basic_neq_c64_left, basic_neq_c64_right
     procedure, pass(this) :: free_symbols => basic_free_symbols
     procedure, pass(this) :: basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
     procedure, pass(this) :: basic_add_f_left, basic_add_f_right, basic_add_d_left, basic_add_d_right
@@ -60,7 +63,9 @@ contains
     generic :: operator(==) => basic_eq, basic_eq_i_left, basic_eq_i_right, basic_eq_i64_left, basic_eq_i64_right
     generic :: operator(==) => basic_eq_f_left, basic_eq_f_right, basic_eq_d_left, basic_eq_d_right
     generic :: operator(==) => basic_eq_c_left, basic_eq_c_right, basic_eq_c64_left, basic_eq_c64_right
-    generic :: operator(/=) => basic_neq
+    generic :: operator(/=) => basic_neq, basic_neq_i_left, basic_neq_i_right, basic_neq_i64_left, basic_neq_i64_right
+    generic :: operator(/=) => basic_neq_f_left, basic_neq_f_right, basic_neq_d_left, basic_neq_d_right
+    generic :: operator(/=) => basic_neq_c_left, basic_neq_c_right, basic_neq_c64_left, basic_neq_c64_right
     final :: basic_free
 end type
 
@@ -1016,6 +1021,90 @@ function basic_neq(a, b) result(res)
     integer(c_int) :: dummy
     dummy = c_basic_neq(a%ptr, b%ptr)
     res = (dummy /= 0)
+end function
+
+function basic_neq_i_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, SymInteger(b))
+end function
+
+function basic_neq_i_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, SymInteger(b))
+end function
+
+function basic_neq_i64_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, SymInteger(b))
+end function
+
+function basic_neq_i64_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    integer(kind=int64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, SymInteger(b))
+end function
+
+function basic_neq_f_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, RealDouble(b))
+end function
+
+function basic_neq_f_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, RealDouble(b))
+end function
+
+function basic_neq_d_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, RealDouble(b))
+end function
+
+function basic_neq_d_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    real(kind=real64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, RealDouble(b))
+end function
+
+function basic_neq_c_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, ComplexDouble(b))
+end function
+
+function basic_neq_c_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, ComplexDouble(b))
+end function
+
+function basic_neq_c64_left(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, ComplexDouble(b))
+end function
+
+function basic_neq_c64_right(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    logical :: res
+    res = basic_neq(this, ComplexDouble(b))
 end function
 
 function evalf(b, bits, r) result(res)
