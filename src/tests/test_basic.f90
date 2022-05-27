@@ -277,6 +277,21 @@ subroutine dostuff()
     c = parse('0.0 + 1.0*I')
     call assert_eq(b, c)
 
+    a = SymInteger(2)
+    b = a * (2.0, 2.0)
+    c = parse('4.0 + 4.0*I')
+    call assert_eq(b, c)
+    b = (2.0, 2.0) * a
+    c = parse('4.0 + 4.0*I')
+    call assert_eq(b, c)
+    a = SymInteger(2)
+    b = a * (2.0d0, 2.0d0)
+    c = parse('4.0 + 4.0*I')
+    call assert_eq(b, c)
+    b = (2.0d0, 2.0d0) * a
+    c = parse('4.0 + 4.0*I')
+    call assert_eq(b, c)
+
     a = SymInteger(23)
     b = SymInteger(45)
     c = SymComplex(a, b)

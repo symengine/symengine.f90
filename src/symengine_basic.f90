@@ -25,6 +25,7 @@ contains
     procedure, pass(this) :: basic_sub_c_left, basic_sub_c_right, basic_sub_c64_left, basic_sub_c64_right
     procedure, pass(this) :: basic_mul_i_left, basic_mul_i_right, basic_mul_i64_left, basic_mul_i64_right
     procedure, pass(this) :: basic_mul_f_left, basic_mul_f_right, basic_mul_d_left, basic_mul_d_right
+    procedure, pass(this) :: basic_mul_c_left, basic_mul_c_right, basic_mul_c64_left, basic_mul_c64_right
     procedure, pass(this) :: basic_div_i_left, basic_div_i_right, basic_div_i64_left, basic_div_i64_right
     procedure, pass(this) :: basic_div_f_left, basic_div_f_right, basic_div_d_left, basic_div_d_right
     procedure, pass(this) :: basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
@@ -42,6 +43,7 @@ contains
     generic :: operator(*) => basic_mul
     generic :: operator(*) => basic_mul_i_left, basic_mul_i_right, basic_mul_i64_left, basic_mul_i64_right
     generic :: operator(*) => basic_mul_f_left, basic_mul_f_right, basic_mul_d_left, basic_mul_d_right
+    generic :: operator(*) => basic_mul_c_left, basic_mul_c_right, basic_mul_c64_left, basic_mul_c64_right
     generic :: operator(/) => basic_div
     generic :: operator(/) => basic_div_i_left, basic_div_i_right, basic_div_i64_left, basic_div_i64_right
     generic :: operator(/) => basic_div_f_left, basic_div_f_right, basic_div_d_left, basic_div_d_right
@@ -590,6 +592,34 @@ function basic_mul_d_right(b, this) result(res)
     real(kind=real64), intent(in) :: b
     type(basic) :: res
     res = basic_mul(RealDouble(b), this)
+end function
+
+function basic_mul_c_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, SymComplex(b))
+end function
+
+function basic_mul_c_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(SymComplex(b), this)
+end function
+
+function basic_mul_c64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(this, SymComplex(b))
+end function
+
+function basic_mul_c64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_mul(SymComplex(b), this)
 end function
 
 function basic_div(a, b)
