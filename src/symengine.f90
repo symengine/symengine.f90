@@ -6,15 +6,9 @@ use exceptions
 use symengine_interface
 use symengine_basic
 use functions
+use symengine_rational
 
 implicit none
-
-type, extends(Basic) :: Rational
-end type Rational
-
-interface Rational
-    module procedure rational_new
-end interface
 
 type, extends(Basic) :: Symbol
 end type Symbol
@@ -135,19 +129,6 @@ function goldenratio() result(res)
     res = Basic()
     call c_basic_const_goldenratio(res%ptr)
     res%tmp = .true.
-end function
-
-function rational_new(a, b)
-    integer :: a, b
-    integer(c_long) :: x, y
-    integer(c_long) :: exception
-    type(Rational) :: rational_new
-    x = int(a)
-    y = int(b)
-    rational_new%ptr = c_basic_new_heap()
-    exception = c_rational_set_si(rational_new%ptr, x, y)
-    call handle_exception(exception)
-    rational_new%tmp = .true.
 end function
 
 function symbol_new(c)
