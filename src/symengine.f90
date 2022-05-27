@@ -95,6 +95,7 @@ end interface
 
 private
 public :: ptr, Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, exp, log, abs, sqrt, atan2, max, SymComplex
+public :: ComplexDouble
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye

@@ -105,15 +105,23 @@ interface SymComplex
     module procedure complex_new_i64_i
     module procedure complex_new_i_i64
     module procedure complex_new_i64_i64
+end interface
+
+type, extends(Basic) :: ComplexDouble
+end type ComplexDouble
+
+interface ComplexDouble
+    module procedure complex_new_f_f
+    module procedure complex_new_f_d
+    module procedure complex_new_d_f
+    module procedure complex_new_d_d
     module procedure complex_new_cmplx
     module procedure complex_new_cmplx_d
 end interface
 
 
-
-
 private
-public :: ptr, Basic, SetBasic, SymInteger, RealDouble, SymComplex
+public :: ptr, Basic, SetBasic, SymInteger, RealDouble, SymComplex, ComplexDouble
 
 contains
 
@@ -147,24 +155,24 @@ function get(this) result(i)
     i = int(c_integer_get_si(this%ptr))
 end function
 
-function real_new_d(d)
+function real_new_d(d) result(res)
     real(c_double) :: d
     integer(c_long) :: exception
-    type(RealDouble) :: real_new_d
-    real_new_d%ptr = c_basic_new_heap()
-    exception = c_real_double_set_d(real_new_d%ptr, d)
+    type(RealDouble) :: res
+    res%ptr = c_basic_new_heap()
+    exception = c_real_double_set_d(res%ptr, d)
     call handle_exception(exception)
-    real_new_d%tmp = .true.
+    res%tmp = .true.
 end function
 
-function real_new_f(f)
+function real_new_f(f) result(res)
     real :: f
     integer(c_long) :: exception
-    type(RealDouble) :: real_new_f
-    real_new_f%ptr = c_basic_new_heap()
-    exception = c_real_double_set_d(real_new_f%ptr, real(f, 8))
+    type(RealDouble) :: res
+    res%ptr = c_basic_new_heap()
+    exception = c_real_double_set_d(res%ptr, real(f, 8))
     call handle_exception(exception)
-    real_new_f%tmp = .true.
+    res%tmp = .true.
 end function
 
 function complex_new(re, im) result(res)
@@ -203,25 +211,61 @@ function complex_new_i64_i64(re, im) result(res)
     res = complex_new(SymInteger(re), SymInteger(im))
 end function
 
+function complex_new_f_f(x, y) result(res)
+    real(kind=real32) :: x
+    real(kind=real32) :: y
+    type(ComplexDouble) :: res
+    type(Basic) :: i
+    i = SymComplex(SymInteger(0), SymInteger(1))
+    res = RealDouble(x) + i * RealDouble(y)
+end function
+
+function complex_new_d_f(x, y) result(res)
+    real(kind=real64) :: x
+    real(kind=real32) :: y
+    type(ComplexDouble) :: res
+    type(Basic) :: i
+    i = SymComplex(SymInteger(0), SymInteger(1))
+    res = RealDouble(x) + i * RealDouble(y)
+end function
+
+function complex_new_f_d(x, y) result(res)
+    real(kind=real32) :: x
+    real(kind=real64) :: y
+    type(ComplexDouble) :: res
+    type(Basic) :: i
+    i = SymComplex(SymInteger(0), SymInteger(1))
+    res = RealDouble(x) + i * RealDouble(y)
+end function
+
+function complex_new_d_d(x, y) result(res)
+    real(kind=real64) :: x
+    real(kind=real64) :: y
+    type(ComplexDouble) :: res
+    type(Basic) :: i
+    i = SymComplex(SymInteger(0), SymInteger(1))
+    res = RealDouble(x) + i * RealDouble(y)
+end function
+
 function complex_new_cmplx(z) result(res)
-    complex :: z
-    type(SymComplex) :: res
+    complex(kind=real32) :: z
+    type(ComplexDouble) :: res
     type(RealDouble) :: x, y
     type(Basic) :: i
     x = RealDouble(z%re)
     y = RealDouble(z%im)
-    i = complex_new(SymInteger(0), SymInteger(1))
+    i = SymComplex(SymInteger(0), SymInteger(1))
     res = x + y * i
 end function
 
 function complex_new_cmplx_d(z) result(res)
     complex(kind=real64) :: z
-    type(SymComplex) :: res
+    type(ComplexDouble) :: res
     type(RealDouble) :: x, y
     type(Basic) :: i
     x = RealDouble(z%re)
     y = RealDouble(z%im)
-    i = complex_new(SymInteger(0), SymInteger(1))
+    i = SymComplex(SymInteger(0), SymInteger(1))
     res = x + y * i
 end function
 
@@ -401,28 +445,28 @@ function basic_add_c_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_add(this, SymComplex(b))
+    res = basic_add(this, ComplexDouble(b))
 end function
 
 function basic_add_c_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_add(this, SymComplex(b))
+    res = basic_add(this, ComplexDouble(b))
 end function
 
 function basic_add_c64_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_add(this, SymComplex(b))
+    res = basic_add(this, ComplexDouble(b))
 end function
 
 function basic_add_c64_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_add(this, SymComplex(b))
+    res = basic_add(this, ComplexDouble(b))
 end function
 
 function basic_sub(a, b)
@@ -495,28 +539,28 @@ function basic_sub_c_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_sub(this, SymComplex(b))
+    res = basic_sub(this, ComplexDouble(b))
 end function
 
 function basic_sub_c_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_sub(SymComplex(b), this)
+    res = basic_sub(ComplexDouble(b), this)
 end function
 
 function basic_sub_c64_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_sub(this, SymComplex(b))
+    res = basic_sub(this, ComplexDouble(b))
 end function
 
 function basic_sub_c64_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_sub(SymComplex(b), this)
+    res = basic_sub(ComplexDouble(b), this)
 end function
 
 function basic_neg(a)
@@ -600,28 +644,28 @@ function basic_mul_c_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_mul(this, SymComplex(b))
+    res = basic_mul(this, ComplexDouble(b))
 end function
 
 function basic_mul_c_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_mul(SymComplex(b), this)
+    res = basic_mul(ComplexDouble(b), this)
 end function
 
 function basic_mul_c64_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_mul(this, SymComplex(b))
+    res = basic_mul(this, ComplexDouble(b))
 end function
 
 function basic_mul_c64_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_mul(SymComplex(b), this)
+    res = basic_mul(ComplexDouble(b), this)
 end function
 
 function basic_div(a, b)
@@ -694,28 +738,28 @@ function basic_div_c_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_div(this, SymComplex(b))
+    res = basic_div(this, ComplexDouble(b))
 end function
 
 function basic_div_c_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     type(basic) :: res
-    res = basic_div(SymComplex(b), this)
+    res = basic_div(ComplexDouble(b), this)
 end function
 
 function basic_div_c64_left(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_div(this, SymComplex(b))
+    res = basic_div(this, ComplexDouble(b))
 end function
 
 function basic_div_c64_right(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     type(basic) :: res
-    res = basic_div(SymComplex(b), this)
+    res = basic_div(ComplexDouble(b), this)
 end function
 
 function basic_pow(a, b)
@@ -852,28 +896,28 @@ function basic_eq_c_left(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     logical :: res
-    res = basic_eq(this, SymComplex(b))
+    res = basic_eq(this, ComplexDouble(b))
 end function
 
 function basic_eq_c_right(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real32), intent(in) :: b
     logical :: res
-    res = basic_eq(this, SymComplex(b))
+    res = basic_eq(this, ComplexDouble(b))
 end function
 
 function basic_eq_c64_left(b, this) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     logical :: res
-    res = basic_eq(this, SymComplex(b))
+    res = basic_eq(this, ComplexDouble(b))
 end function
 
 function basic_eq_c64_right(this, b) result(res)
     class(basic), intent(in) :: this
     complex(kind=real64), intent(in) :: b
     logical :: res
-    res = basic_eq(this, SymComplex(b))
+    res = basic_eq(this, ComplexDouble(b))
 end function
 
 function basic_neq(a, b)

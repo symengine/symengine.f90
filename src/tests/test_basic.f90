@@ -36,6 +36,7 @@ end subroutine
 subroutine dostuff()
     use symengine
     use iso_fortran_env, only: int64
+    implicit none
     type(Basic) :: a, b, c, d
     type(DenseMatrix) :: M, N
     type(SetBasic) :: set
@@ -191,9 +192,18 @@ subroutine dostuff()
     call assert(2.0d0 == a)
     call assert(a == 2.0d0)
 
-    a = SymComplex((2.0, 1.0))
+    a = ComplexDouble((2.0, 1.0))
     call assert((2.0, 1.0) == a)
     call assert(a == (2.0, 1.0))
+
+    a = ComplexDouble(2.0, 3.0)
+    call assert((2.0, 3.0) == a)
+    a = ComplexDouble(2.0, 3.0d0)
+    call assert((2.0, 3.0) == a)
+    a = ComplexDouble(2.0d0, 3.0)
+    call assert((2.0, 3.0) == a)
+    a = ComplexDouble(2.0d0, 3.0d0)
+    call assert((2.0, 3.0) == a)
 
     a = pi()
     b = parse("pi")
@@ -241,10 +251,10 @@ subroutine dostuff()
     a = SymComplex(1_int64, 1)
     call assert_eq(a, b)
 
-    a = SymComplex((1.0, 1.0))
+    a = ComplexDouble((1.0, 1.0))
     b = parse('1.0 + 1.0*I')
     call assert_eq(a, b)
-    a = SymComplex((1.0d0, 1.0d0))
+    a = ComplexDouble((1.0d0, 1.0d0))
     b = parse('1.0 + 1.0*I')
     call assert_eq(a, b)
 
