@@ -202,6 +202,41 @@ interface
         type(c_ptr), value :: s, a
         integer(c_long) :: c_basic_acoth
     end function
+    function c_basic_lambertw(s, a) bind(c, name='basic_lambertw')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_lambertw
+    end function
+    function c_basic_zeta(s, a) bind(c, name='basic_zeta')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_zeta
+    end function
+    function c_basic_dirichlet_eta(s, a) bind(c, name='basic_dirichlet_eta')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_dirichlet_eta
+    end function
+    function c_basic_gamma(s, a) bind(c, name='basic_gamma')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_gamma
+    end function
+    function c_basic_loggamma(s, a) bind(c, name='basic_loggamma')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_loggamma
+    end function
+    function c_basic_floor(s, a) bind(c, name='basic_floor')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_floor
+    end function
+    function c_basic_ceiling(s, a) bind(c, name='basic_ceiling')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_ceiling
+    end function
     function c_basic_exp(s, a) result(res) bind(c, name='basic_exp')
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a

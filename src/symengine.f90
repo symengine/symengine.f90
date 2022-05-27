@@ -20,6 +20,7 @@ public :: sin, cos, tan, asin, acos, atan, erf, erfc
 public :: csc, sec, cot, acsc, asec, acot
 public :: sinh, cosh, tanh, asinh, acosh, atanh
 public :: csch, sech, coth, acsch, asech, acoth
+public :: lambertw, zeta, dirichlet_eta, gamma, loggamma, floor, ceiling
 public :: ComplexDouble
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic

@@ -142,7 +142,33 @@ interface acoth
     module procedure basic_acoth
 end interface
 
+interface lambertw
+    module procedure basic_lambertw
+end interface
 
+interface zeta
+    module procedure basic_zeta
+end interface
+
+interface dirichlet_eta
+    module procedure basic_dirichlet_eta
+end interface
+
+interface gamma
+    module procedure basic_gamma
+end interface
+
+interface loggamma
+    module procedure basic_loggamma
+end interface
+
+interface floor
+    module procedure basic_floor
+end interface
+
+interface ceiling
+    module procedure basic_ceiling
+end interface
 
 private
 public :: sin, cos, tan, asin, acos, atan
@@ -150,6 +176,8 @@ public :: csc, sec, cot, acsc, asec, acot
 public :: sinh, cosh, tanh, asinh, acosh, atanh
 public :: csch, sech, coth, acsch, asech, acoth
 public :: exp, log, abs, sqrt, atan2, max, erf, erfc
+public :: lambertw, zeta, dirichlet_eta, gamma, loggamma
+public :: floor, ceiling
 
 contains
 
@@ -429,6 +457,76 @@ function basic_log(a) result(res)
     integer(c_long) :: exception
     res = Basic()
     exception = c_basic_log(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_lambertw(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_lambertw(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_zeta(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_zeta(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_dirichlet_eta(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_dirichlet_eta(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_gamma(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_gamma(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_loggamma(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_loggamma(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_floor(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_floor(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_ceiling(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_ceiling(res%ptr, a%ptr)
     call handle_exception(exception)
     res%tmp = .true.
 end function
