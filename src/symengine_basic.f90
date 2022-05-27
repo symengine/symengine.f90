@@ -31,6 +31,7 @@ contains
     procedure, pass(this) :: basic_div_c_left, basic_div_c_right, basic_div_c64_left, basic_div_c64_right
     procedure, pass(this) :: basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
     procedure, pass(this) :: basic_pow_f_left, basic_pow_f_right, basic_pow_d_left, basic_pow_d_right
+    procedure, pass(this) :: basic_pow_c_left, basic_pow_c_right, basic_pow_c64_left, basic_pow_c64_right
     generic :: assignment(=) => basic_assign
     generic :: operator(+) => basic_add
     generic :: operator(+) => basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
@@ -52,6 +53,7 @@ contains
     generic :: operator(**) => basic_pow
     generic :: operator(**) => basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
     generic :: operator(**) => basic_pow_f_left, basic_pow_f_right, basic_pow_d_left, basic_pow_d_right
+    generic :: operator(**) => basic_pow_c_left, basic_pow_c_right, basic_pow_c64_left, basic_pow_c64_right
     generic :: operator(==) => basic_eq, basic_eq_i_left, basic_eq_i_right, basic_eq_i64_left, basic_eq_i64_right
     generic :: operator(==) => basic_eq_f_left, basic_eq_f_right, basic_eq_d_left, basic_eq_d_right
     generic :: operator(==) => basic_eq_c_left, basic_eq_c_right, basic_eq_c64_left, basic_eq_c64_right
@@ -841,6 +843,34 @@ function basic_pow_d_right(b, this) result(res)
     real(kind=real64), intent(in) :: b
     type(basic) :: res
     res = basic_pow(RealDouble(b), this)
+end function
+
+function basic_pow_c_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, ComplexDouble(b))
+end function
+
+function basic_pow_c_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real32), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(ComplexDouble(b), this)
+end function
+
+function basic_pow_c64_left(this, b) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(this, ComplexDouble(b))
+end function
+
+function basic_pow_c64_right(b, this) result(res)
+    class(basic), intent(in) :: this
+    complex(kind=real64), intent(in) :: b
+    type(basic) :: res
+    res = basic_pow(ComplexDouble(b), this)
 end function
 
 function basic_eq(a, b) result(res)
