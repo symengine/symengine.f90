@@ -25,6 +25,12 @@ subroutine assert_str_eq(a, b)
     end if
 end subroutine
 
+subroutine assert(a)
+    logical :: a
+    if (.not. a) then
+        error stop "Assertion failed"
+    end if
+end subroutine
 
 
 subroutine dostuff()
@@ -172,6 +178,22 @@ subroutine dostuff()
     c = c%evalf(53_8, 1)
     d = RealDouble(1.4142135623730951d0)
     call assert_eq(c, d)
+
+    a = SymInteger(2)
+    call assert(a == 2)
+    call assert(2 == a)
+    call assert(2_int64 == a)
+    call assert(a == 2_int64)
+
+    a = RealDouble(2.0)
+    call assert(2.0 == a)
+    call assert(a == 2.0)
+    call assert(2.0d0 == a)
+    call assert(a == 2.0d0)
+
+    a = SymComplex((2.0, 1.0))
+    call assert((2.0, 1.0) == a)
+    call assert(a == (2.0, 1.0))
 
     a = pi()
     b = parse("pi")
