@@ -10,7 +10,9 @@ type Basic
     type(c_ptr) :: ptr = c_null_ptr
     logical :: tmp = .false.
 contains
-    procedure :: str, subs, evalf, basic_assign
+    procedure :: str, subs, evalf
+    procedure :: basic_assign, basic_assign_i, basic_assign_i64, basic_assign_f, basic_assign_d
+    procedure :: basic_assign_c, basic_assign_c64
     procedure :: basic_add, basic_sub, basic_neg, basic_mul
     procedure :: basic_div, basic_pow, basic_eq, basic_neq
     procedure, pass(this) :: basic_eq_i_left, basic_eq_i_right, basic_eq_i64_left, basic_eq_i64_right
@@ -32,7 +34,8 @@ contains
     procedure, pass(this) :: basic_pow_i_left, basic_pow_i_right, basic_pow_i64_left, basic_pow_i64_right
     procedure, pass(this) :: basic_pow_f_left, basic_pow_f_right, basic_pow_d_left, basic_pow_d_right
     procedure, pass(this) :: basic_pow_c_left, basic_pow_c_right, basic_pow_c64_left, basic_pow_c64_right
-    generic :: assignment(=) => basic_assign
+    generic :: assignment(=) => basic_assign, basic_assign_i, basic_assign_i64, basic_assign_f, basic_assign_d
+    generic :: assignment(=) => basic_assign_c, basic_assign_c64
     generic :: operator(+) => basic_add
     generic :: operator(+) => basic_add_i_left, basic_add_i_right, basic_add_i64_left, basic_add_i64_right
     generic :: operator(+) => basic_add_f_left, basic_add_f_right, basic_add_d_left, basic_add_d_right
@@ -390,6 +393,48 @@ subroutine basic_assign(a, b)
     if (b%tmp) then
         call basic_free(b)
     end if
+end subroutine
+
+subroutine basic_assign_i(a, b)
+    class(basic), intent(inout) :: a
+    integer(kind=int32), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, SymInteger(b))
+end subroutine
+
+subroutine basic_assign_i64(a, b)
+    class(basic), intent(inout) :: a
+    integer(kind=int64), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, SymInteger(b))
+end subroutine
+
+subroutine basic_assign_f(a, b)
+    class(basic), intent(inout) :: a
+    real(kind=real32), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, RealDouble(b))
+end subroutine
+
+subroutine basic_assign_d(a, b)
+    class(basic), intent(inout) :: a
+    real(kind=real64), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, RealDouble(b))
+end subroutine
+
+subroutine basic_assign_c(a, b)
+    class(basic), intent(inout) :: a
+    complex(kind=real32), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, ComplexDouble(b))
+end subroutine
+
+subroutine basic_assign_c64(a, b)
+    class(basic), intent(inout) :: a
+    complex(kind=real64), intent(in) :: b
+    integer(c_long) :: exception
+    call basic_assign(a, ComplexDouble(b))
 end subroutine
 
 function basic_add(a, b) result(res)

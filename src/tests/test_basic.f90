@@ -121,6 +121,25 @@ subroutine dostuff()
     c = parse('sqrt(x)')
     call assert_eq(sqrt(b), c)
 
+    a = 12
+    b = parse('12')
+    call assert_eq(a, b)
+    a = 12_int64
+    b = parse('12')
+    call assert_eq(a, b)
+    a = 12.0
+    b = parse('12.0')
+    call assert_eq(a, b)
+    a = 12.0d0
+    b = parse('12.0')
+    call assert_eq(a, b)
+    a = (2.0, 3.0)
+    b = parse('2.0 + 3.0*I')
+    call assert_eq(a, b)
+    a = (2.0d0, 3.0d0)
+    b = parse('2.0 + 3.0*I')
+    call assert_eq(a, b)
+
     a = Rational(1, 2)
     b = Rational(3, 4)
     c = Rational(3, 8)
