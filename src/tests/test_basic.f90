@@ -649,6 +649,9 @@ subroutine dostuff()
     a = set%get(2)
     b = Symbol("y")
     call assert_eq(a, b)
+
+    a = emptyset()
+
 end subroutine
 
 

@@ -413,6 +413,10 @@ interface
         integer(c_int), value :: k
         integer(c_long) :: res
     end function
+    subroutine c_basic_set_emptyset(s) bind(c, name='basic_set_emptyset')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
 end interface 
 
 contains

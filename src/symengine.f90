@@ -10,6 +10,7 @@ use symengine_rational
 use symengine_symbol
 use constants
 use dense_matrix
+use sets
 
 implicit none
 
@@ -23,6 +24,7 @@ public :: ComplexDouble
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
+public :: emptyset
 
 contains
 
