@@ -3,6 +3,7 @@ set(SRC
     symengine_interface.f90
     symengine_basic.f90
     symengine_rational.f90
+    symengine_symbol.f90
     functions.f90
     symengine.f90
     )

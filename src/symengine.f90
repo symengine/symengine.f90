@@ -7,16 +7,9 @@ use symengine_interface
 use symengine_basic
 use functions
 use symengine_rational
+use symengine_symbol
 
 implicit none
-
-type, extends(Basic) :: Symbol
-end type Symbol
-
-interface Symbol
-    module procedure symbol_new
-end interface
-
 
 
 type DenseMatrix
@@ -129,18 +122,6 @@ function goldenratio() result(res)
     res = Basic()
     call c_basic_const_goldenratio(res%ptr)
     res%tmp = .true.
-end function
-
-function symbol_new(c)
-    character(len=*) :: c
-    character(len=len_trim(c) + 1) :: new_c
-    integer(c_long) :: exception
-    type(Symbol) :: symbol_new
-    new_c = trim(c) // c_null_char
-    symbol_new%ptr = c_basic_new_heap()
-    symbol_new%tmp = .true.
-    exception = c_symbol_set(symbol_new%ptr, new_c) 
-    call handle_exception(exception)
 end function
 
 function parse(c)
