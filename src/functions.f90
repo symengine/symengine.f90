@@ -6,14 +6,6 @@ use symengine_basic
 use exceptions 
 implicit none
 
-interface sin
-    module procedure basic_sin
-end interface
-
-interface cos
-    module procedure basic_cos
-end interface
-
 interface exp
     module procedure basic_exp
 end interface
@@ -46,11 +38,140 @@ interface max
     module procedure basic_max
 end interface
 
+interface erf
+    module procedure basic_erf
+end interface
+
+interface erfc
+    module procedure basic_erfc
+end interface
+
+interface sin
+    module procedure basic_sin
+end interface
+
+interface cos
+    module procedure basic_cos
+end interface
+
+interface tan
+    module procedure basic_tan
+end interface
+
+interface asin
+    module procedure basic_asin
+end interface
+
+interface acos
+    module procedure basic_acos
+end interface
+
+interface atan
+    module procedure basic_atan
+end interface
+
+interface csc
+    module procedure basic_csc
+end interface
+
+interface sec
+    module procedure basic_sec
+end interface
+
+interface cot
+    module procedure basic_cot
+end interface
+
+interface acsc
+    module procedure basic_acsc
+end interface
+
+interface asec
+    module procedure basic_asec
+end interface
+
+interface acot
+    module procedure basic_acot
+end interface
+
+interface sinh
+    module procedure basic_sinh
+end interface
+
+interface cosh
+    module procedure basic_cosh
+end interface
+
+interface tanh
+    module procedure basic_tanh
+end interface
+
+interface asinh
+    module procedure basic_asinh
+end interface
+
+interface acosh
+    module procedure basic_acosh
+end interface
+
+interface atanh
+    module procedure basic_atanh
+end interface
+
+interface csch
+    module procedure basic_csch
+end interface
+
+interface sech
+    module procedure basic_sech
+end interface
+
+interface coth
+    module procedure basic_coth
+end interface
+
+interface acsch
+    module procedure basic_acsch
+end interface
+
+interface asech
+    module procedure basic_asech
+end interface
+
+interface acoth
+    module procedure basic_acoth
+end interface
+
+
 
 private
-public :: sin, cos, exp, log, abs, sqrt, atan2, max
+public :: sin, cos, tan, asin, acos, atan
+public :: csc, sec, cot, acsc, asec, acot
+public :: sinh, cosh, tanh, asinh, acosh, atanh
+public :: csch, sech, coth, acsch, asech, acoth
+public :: exp, log, abs, sqrt, atan2, max, erf, erfc
 
 contains
+
+function basic_erf(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_erf(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_erfc(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_erfc(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
 
 function basic_sin(a) result(res)
     class(basic), intent(in) :: a
@@ -68,6 +189,226 @@ function basic_cos(a) result(res)
     integer(c_long) :: exception
     res = Basic()
     exception = c_basic_cos(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_tan(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_tan(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_asin(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_asin(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acos(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acos(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_atan(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_atan(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_csc(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_csc(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_sec(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_sec(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_cot(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_cot(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acsc(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acsc(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_asec(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_asec(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acot(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acot(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_sinh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_sinh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_cosh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_cosh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_tanh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_tanh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_asinh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_asinh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acosh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acosh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_atanh(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_atanh(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_csch(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_csch(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_sech(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_sech(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_coth(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_coth(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acsch(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acsch(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_asech(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_asech(res%ptr, a%ptr)
+    call handle_exception(exception)
+    res%tmp = .true.
+end function
+
+function basic_acoth(a) result(res)
+    class(basic), intent(in) :: a
+    type(basic) :: res
+    integer(c_long) :: exception
+    res = Basic()
+    exception = c_basic_acoth(res%ptr, a%ptr)
     call handle_exception(exception)
     res%tmp = .true.
 end function

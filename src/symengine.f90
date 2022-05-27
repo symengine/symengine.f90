@@ -14,7 +14,11 @@ use dense_matrix
 implicit none
 
 private
-public :: ptr, Basic, SymInteger, Rational, RealDouble, Symbol, parse, sin, cos, exp, log, abs, sqrt, atan2, max, SymComplex
+public :: ptr, Basic, SymInteger, Rational, RealDouble, Symbol, parse, exp, log, abs, sqrt, atan2, max, SymComplex
+public :: sin, cos, tan, asin, acos, atan, erf, erfc
+public :: csc, sec, cot, acsc, asec, acot
+public :: sinh, cosh, tanh, asinh, acosh, atanh
+public :: csch, sech, coth, acsch, asech, acoth
 public :: ComplexDouble
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic

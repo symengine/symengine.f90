@@ -72,6 +72,16 @@ interface
         type(c_ptr), value :: a, b
         integer(c_int) :: c_basic_neq
     end function
+    function c_basic_erf(s, a) bind(c, name='basic_erf')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_erf
+    end function
+    function c_basic_erfc(s, a) bind(c, name='basic_erfc')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_erfc
+    end function
     function c_basic_sin(s, a) bind(c, name='basic_sin')
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a
@@ -81,6 +91,116 @@ interface
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a
         integer(c_long) :: c_basic_cos
+    end function
+    function c_basic_tan(s, a) bind(c, name='basic_tan')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_tan
+    end function
+    function c_basic_asin(s, a) bind(c, name='basic_asin')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_asin
+    end function
+    function c_basic_acos(s, a) bind(c, name='basic_acos')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acos
+    end function
+    function c_basic_atan(s, a) bind(c, name='basic_atan')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_atan
+    end function
+    function c_basic_csc(s, a) bind(c, name='basic_csc')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_csc
+    end function
+    function c_basic_sec(s, a) bind(c, name='basic_sec')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_sec
+    end function
+    function c_basic_cot(s, a) bind(c, name='basic_cot')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_cot
+    end function
+    function c_basic_acsc(s, a) bind(c, name='basic_acsc')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acsc
+    end function
+    function c_basic_asec(s, a) bind(c, name='basic_asec')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_asec
+    end function
+    function c_basic_acot(s, a) bind(c, name='basic_acot')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acot
+    end function
+    function c_basic_sinh(s, a) bind(c, name='basic_sinh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_sinh
+    end function
+    function c_basic_cosh(s, a) bind(c, name='basic_cosh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_cosh
+    end function
+    function c_basic_tanh(s, a) bind(c, name='basic_tanh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_tanh
+    end function
+    function c_basic_asinh(s, a) bind(c, name='basic_asinh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_asinh
+    end function
+    function c_basic_acosh(s, a) bind(c, name='basic_acosh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acosh
+    end function
+    function c_basic_atanh(s, a) bind(c, name='basic_atanh')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_atanh
+    end function
+    function c_basic_csch(s, a) bind(c, name='basic_csch')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_csch
+    end function
+    function c_basic_sech(s, a) bind(c, name='basic_sech')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_sech
+    end function
+    function c_basic_coth(s, a) bind(c, name='basic_coth')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_coth
+    end function
+    function c_basic_acsch(s, a) bind(c, name='basic_acsch')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acsch
+    end function
+    function c_basic_asech(s, a) bind(c, name='basic_asech')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_asech
+    end function
+    function c_basic_acoth(s, a) bind(c, name='basic_acoth')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a
+        integer(c_long) :: c_basic_acoth
     end function
     function c_basic_exp(s, a) result(res) bind(c, name='basic_exp')
         import :: c_long, c_ptr
