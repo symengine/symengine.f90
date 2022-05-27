@@ -125,34 +125,34 @@ public :: ptr, Basic, SetBasic, SymInteger, RealDouble, SymComplex, ComplexDoubl
 
 contains
 
-function integer_new(i)
+function integer_new(i) result(res)
     integer :: i
     integer(c_long) :: j
     integer(c_long) :: exception
-    type(SymInteger) :: integer_new
+    type(SymInteger) :: res
     j = int(i)
-    integer_new%ptr = c_basic_new_heap()
-    exception = c_integer_set_si(integer_new%ptr, j)
+    res%ptr = c_basic_new_heap()
+    exception = c_integer_set_si(res%ptr, j)
     call handle_exception(exception)
-    integer_new%tmp = .true.
+    res%tmp = .true.
 end function
 
-function integer_new_i64(i)
+function integer_new_i64(i) result(res)
     integer(kind=int64) :: i
     integer(c_long) :: j
     integer(c_long) :: exception
-    type(SymInteger) :: integer_new_i64
+    type(SymInteger) :: res
     j = int(i)
-    integer_new_i64%ptr = c_basic_new_heap()
-    exception = c_integer_set_si(integer_new_i64%ptr, j)
+    res%ptr = c_basic_new_heap()
+    exception = c_integer_set_si(res%ptr, j)
     call handle_exception(exception)
-    integer_new_i64%tmp = .true.
+    res%tmp = .true.
 end function
 
-function get(this) result(i)
+function get(this) result(res)
     class(SymInteger) :: this
-    integer :: i
-    i = int(c_integer_get_si(this%ptr))
+    integer :: res
+    res = int(c_integer_get_si(this%ptr))
 end function
 
 function real_new_d(d) result(res)
@@ -319,7 +319,6 @@ function setbasic_get(this, n) result(res)
     res%tmp = .true.
 end function
 
-
 function basic_new() result(new)
     type(Basic) :: new
     new%ptr = c_basic_new_heap()
@@ -341,14 +340,14 @@ function str(e) result(res)
     call c_basic_str_free(cstring)
 end function
 
-function subs(e, a, b)
+function subs(e, a, b) result(res)
     class(Basic) :: e, a, b
     integer(c_long) :: exception
-    type(Basic) :: subs
-    subs = Basic()
-    exception = c_basic_subs2(subs%ptr, e%ptr, a%ptr, b%ptr) 
+    type(Basic) :: res
+    res = Basic()
+    exception = c_basic_subs2(res%ptr, e%ptr, a%ptr, b%ptr) 
     call handle_exception(exception)
-    subs%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_free_symbols(this) result(res)
@@ -413,32 +412,32 @@ function basic_add_i64_right(b, this) result(res)
     res = basic_add(this, SymInteger(b))
 end function
 
-function basic_add_f_left(this, b)
+function basic_add_f_left(this, b) result(res)
     class(basic), intent(in) :: this
     real(kind=real32), intent(in) :: b
-    type(basic) :: basic_add_f_left
-    basic_add_f_left = basic_add(this, RealDouble(b))
+    type(basic) :: res
+    res = basic_add(this, RealDouble(b))
 end function
 
-function basic_add_f_right(b, this)
+function basic_add_f_right(b, this) result(res)
     class(basic), intent(in) :: this
     real(kind=real32), intent(in) :: b
-    type(basic) :: basic_add_f_right
-    basic_add_f_right = basic_add(this, RealDouble(b))
+    type(basic) :: res
+    res = basic_add(this, RealDouble(b))
 end function
 
-function basic_add_d_left(this, b)
+function basic_add_d_left(this, b) result(res)
     class(basic), intent(in) :: this
     real(kind=real64), intent(in) :: b
-    type(basic) :: basic_add_d_left
-    basic_add_d_left = basic_add(this, RealDouble(b))
+    type(basic) :: res
+    res = basic_add(this, RealDouble(b))
 end function
 
-function basic_add_d_right(b, this)
+function basic_add_d_right(b, this) result(res)
     class(basic), intent(in) :: this
     real(kind=real64), intent(in) :: b
-    type(basic) :: basic_add_d_right
-    basic_add_d_right = basic_add(this, RealDouble(b))
+    type(basic) :: res
+    res = basic_add(this, RealDouble(b))
 end function
 
 function basic_add_c_left(this, b) result(res)
@@ -469,14 +468,14 @@ function basic_add_c64_right(b, this) result(res)
     res = basic_add(this, ComplexDouble(b))
 end function
 
-function basic_sub(a, b)
+function basic_sub(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic) :: basic_sub
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_sub = Basic()
-    exception = c_basic_sub(basic_sub%ptr, a%ptr, b%ptr)
+    res = Basic()
+    exception = c_basic_sub(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    basic_sub%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_sub_i_left(this, b) result(res)
@@ -563,25 +562,25 @@ function basic_sub_c64_right(b, this) result(res)
     res = basic_sub(ComplexDouble(b), this)
 end function
 
-function basic_neg(a)
+function basic_neg(a) result(res)
     class(basic), intent(in) :: a
-    type(basic) :: basic_neg, zero
+    type(basic) :: res, zero
     integer(c_long) :: exception
     zero = SymInteger(0)
-    basic_neg = Basic()
-    exception = c_basic_sub(basic_neg%ptr, zero%ptr, a%ptr)
+    res = Basic()
+    exception = c_basic_sub(res%ptr, zero%ptr, a%ptr)
     call handle_exception(exception)
-    basic_neg%tmp = .true.
+    res%tmp = .true.
 end function
 
-function basic_mul(a, b)
+function basic_mul(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic) :: basic_mul
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_mul = Basic()
-    exception = c_basic_mul(basic_mul%ptr, a%ptr, b%ptr)
+    res = Basic()
+    exception = c_basic_mul(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    basic_mul%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_mul_i_left(this, b) result(res)
@@ -668,14 +667,14 @@ function basic_mul_c64_right(b, this) result(res)
     res = basic_mul(ComplexDouble(b), this)
 end function
 
-function basic_div(a, b)
+function basic_div(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic) :: basic_div
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_div = Basic()
-    exception = c_basic_div(basic_div%ptr, a%ptr, b%ptr)
+    res = Basic()
+    exception = c_basic_div(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    basic_div%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_div_i_left(this, b) result(res)
@@ -762,14 +761,14 @@ function basic_div_c64_right(b, this) result(res)
     res = basic_div(ComplexDouble(b), this)
 end function
 
-function basic_pow(a, b)
+function basic_pow(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic) :: basic_pow
+    type(basic) :: res
     integer(c_long) :: exception
-    basic_pow = Basic()
-    exception = c_basic_pow(basic_pow%ptr, a%ptr, b%ptr)
+    res = Basic()
+    exception = c_basic_pow(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    basic_pow%tmp = .true.
+    res%tmp = .true.
 end function
 
 function basic_pow_i_left(this, b) result(res)
@@ -828,12 +827,12 @@ function basic_pow_d_right(b, this) result(res)
     res = basic_pow(RealDouble(b), this)
 end function
 
-function basic_eq(a, b)
+function basic_eq(a, b) result(res)
     class(basic), intent(in) :: a, b
-    logical :: basic_eq
+    logical :: res
     integer(c_int) :: dummy
     dummy = c_basic_eq(a%ptr, b%ptr)
-    basic_eq = (dummy /= 0)
+    res = (dummy /= 0)
 end function
 
 function basic_eq_i_left(b, this) result(res)
@@ -920,24 +919,24 @@ function basic_eq_c64_right(this, b) result(res)
     res = basic_eq(this, ComplexDouble(b))
 end function
 
-function basic_neq(a, b)
+function basic_neq(a, b) result(res)
     class(basic), intent(in) :: a, b
-    logical :: basic_neq
+    logical :: res
     integer(c_int) :: dummy
     dummy = c_basic_neq(a%ptr, b%ptr)
-    basic_neq = (dummy /= 0)
+    res = (dummy /= 0)
 end function
 
-function evalf(b, bits, r)
+function evalf(b, bits, r) result(res)
     class(basic), intent(in) :: b
     integer(c_long) :: bits
     integer(c_int) :: r
-    type(basic) :: evalf
+    type(basic) :: res
     integer(c_long) :: exception
-    evalf = Basic()
-    exception = c_basic_evalf(evalf%ptr, b%ptr, bits, r)
+    res = Basic()
+    exception = c_basic_evalf(res%ptr, b%ptr, bits, r)
     call handle_exception(exception)
-    evalf%tmp = .true.
+    res%tmp = .true.
 end function
 
 end module
