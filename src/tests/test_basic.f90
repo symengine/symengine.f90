@@ -131,6 +131,13 @@ subroutine dostuff()
     c = RealDouble(3.0)
     call assert_eq(a + b, c)
 
+    a = RealDouble(23)
+    b = parse('23.0')
+    call assert_eq(a, b)
+    a = RealDouble(23_int64)
+    b = parse('23.0')
+    call assert_eq(a, b)
+
     a = Symbol('x')
     b = parse('x * 2.0')
     call assert_eq(a * 2.0, b)

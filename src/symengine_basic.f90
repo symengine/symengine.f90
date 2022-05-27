@@ -94,6 +94,8 @@ end type RealDouble
 interface RealDouble
     module procedure real_new_d
     module procedure real_new_f
+    module procedure real_new_i
+    module procedure real_new_i64
 end interface
 
 type, extends(Basic) :: SymComplex
@@ -173,6 +175,20 @@ function real_new_f(f) result(res)
     exception = c_real_double_set_d(res%ptr, real(f, 8))
     call handle_exception(exception)
     res%tmp = .true.
+end function
+
+function real_new_i(x) result(res)
+    integer(kind=int32) :: x
+    integer(c_long) :: exception
+    type(RealDouble) :: res
+    res = real_new_d(real(x, 8))
+end function
+
+function real_new_i64(x) result(res)
+    integer(kind=int64) :: x
+    integer(c_long) :: exception
+    type(RealDouble) :: res
+    res = real_new_d(real(x, 8))
 end function
 
 function complex_new(re, im) result(res)
