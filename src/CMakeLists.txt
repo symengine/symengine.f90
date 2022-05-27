@@ -5,6 +5,7 @@ set(SRC
     symengine_rational.f90
     symengine_symbol.f90
     functions.f90
+    constants.f90
     symengine.f90
     )
 add_library(symengine_f90 ${SRC})

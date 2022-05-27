@@ -8,6 +8,7 @@ use symengine_basic
 use functions
 use symengine_rational
 use symengine_symbol
+use constants
 
 implicit none
 
@@ -88,41 +89,6 @@ public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
 
 contains
-
-function pi()
-    type(basic) :: pi
-    pi = Basic()
-    call c_basic_const_pi(pi%ptr)
-    pi%tmp = .true.
-end function
-
-function e()
-    type(basic) :: e
-    e = Basic()
-    call c_basic_const_e(e%ptr)
-    e%tmp = .true.
-end function
-
-function eulergamma() result(res)
-    type(basic) :: res
-    res = Basic()
-    call c_basic_const_euler_gamma(res%ptr)
-    res%tmp = .true.
-end function
-
-function catalan() result(res)
-    type(basic) :: res
-    res = Basic()
-    call c_basic_const_catalan(res%ptr)
-    res%tmp = .true.
-end function
-
-function goldenratio() result(res)
-    type(basic) :: res
-    res = Basic()
-    call c_basic_const_goldenratio(res%ptr)
-    res%tmp = .true.
-end function
 
 function parse(c)
     character(len=*) :: c
