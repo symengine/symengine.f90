@@ -452,6 +452,36 @@ interface
         import :: c_ptr
         type(c_ptr), value :: s
     end subroutine
+    subroutine c_basic_set_universalset(s) bind(c, name='basic_set_universalset')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_set_complexes(s) bind(c, name='basic_set_complexes')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_set_reals(s) bind(c, name='basic_set_reals')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_set_rationals(s) bind(c, name='basic_set_rationals')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    subroutine c_basic_set_integers(s) bind(c, name='basic_set_integers')
+        import :: c_ptr
+        type(c_ptr), value :: s
+    end subroutine
+    function c_basic_set_union(s, a, b) bind(c, name='basic_set_union')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: c_basic_set_union
+    end function
+    function c_basic_set_intersection(s, a, b) bind(c, name='basic_set_intersection')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, a, b
+        integer(c_long) :: c_basic_set_intersection
+    end function
 end interface 
 
 contains

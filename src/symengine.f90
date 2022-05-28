@@ -25,7 +25,7 @@ public :: ComplexDouble
 public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
-public :: emptyset
+public :: emptyset, universalset, complexes, reals, rationals, integers, set_union, set_intersection
 
 contains
 

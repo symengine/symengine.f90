@@ -670,6 +670,17 @@ subroutine dostuff()
     call assert_eq(a, b)
 
     a = emptyset()
+    b = universalset()
+    call assert_eq(b, set_union(a, b))
+    call assert_eq(a, set_intersection(a, b))
+    a = complexes()
+    b = reals()
+    call assert_eq(a, set_union(a, b))
+    call assert_eq(b, set_intersection(a, b))
+    a = rationals()
+    b = integers()
+    call assert_eq(a, set_union(a, b))
+    call assert_eq(b, set_intersection(a, b))
 
 end subroutine
 
