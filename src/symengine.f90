@@ -26,7 +26,7 @@ public :: pi, e, eulergamma, catalan, goldenratio
 public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
 public :: emptyset, universalset, complexes, reals, rationals, integers, set_union, set_intersection
-public :: interval
+public :: interval, finiteset
 
 contains
 

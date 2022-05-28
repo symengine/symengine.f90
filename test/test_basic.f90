@@ -699,6 +699,8 @@ subroutine dostuff()
     c = interval(1, 2.0d0, right_open=.true.)
     c = interval(1_int64, 2.0d0, left_open=.false.)
 
+    a = finiteset([ptr(SymInteger(1)), ptr(SymInteger(2)), ptr(SymInteger(3)), ptr(SymInteger(4))])
+
 end subroutine
 
 end program

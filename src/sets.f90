@@ -16,9 +16,13 @@ interface interval
     module procedure basic_interval_d_i, basic_interval_i_d, basic_interval_d_i64, basic_interval_i64_d
 end interface
 
+interface finiteset
+    module procedure basic_finiteset
+end interface
+
 private
 public :: emptyset, universalset, complexes, reals, rationals, integers, set_union, set_intersection
-public :: interval
+public :: interval, finiteset
 
 contains
 
@@ -181,6 +185,25 @@ type(basic) function basic_interval_i64_d(a, b, left_open, right_open) result(re
     real(kind=real64) :: b
     logical, optional :: left_open, right_open
     res = basic_interval(SymInteger(a), RealDouble(b), left_open, right_open)
+end function
+
+type(basic) function basic_finiteset(d) result(res)
+    type(c_ptr), dimension(:) :: d
+    type(c_ptr) :: set
+    integer(c_long) :: exception
+    integer :: i
+
+    set = c_setbasic_new()
+
+    do i = 1, size(d)
+        exception = c_setbasic_insert(set, d(i))
+    end do
+
+    res = Basic()
+    exception = c_basic_set_finiteset(res%ptr, set)
+    call handle_exception(exception)
+    call c_setbasic_free(set)
+    res%tmp = .true.
 end function
 
 type(basic) function set_union(a, b) result(res)

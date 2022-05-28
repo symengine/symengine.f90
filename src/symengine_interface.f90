@@ -407,6 +407,10 @@ interface
         type(c_ptr), value :: s, start, en
         integer(c_int) :: left_open, right_open
     end function
+    integer(c_long) function c_basic_set_finiteset(s, container) bind(c, name='basic_set_finiteset')
+        import :: c_long, c_ptr
+        type(c_ptr), value :: s, container
+    end function
 end interface 
 
 contains
