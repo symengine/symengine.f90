@@ -68,3 +68,4 @@ message("HAVE_SYMENGINE_LLVM     : ${HAVE_SYMENGINE_LLVM}")
 enable_testing()
 
 add_subdirectory(src)
+add_subdirectory(test)

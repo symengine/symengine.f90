@@ -1,3 +1,13 @@
+program test
+
+    implicit none
+
+    call dostuff
+
+    print *, "Finishing"
+
+contains
+
 subroutine assert_eq(a, b)
     use symengine
     type(Basic) :: a, b
@@ -31,7 +41,6 @@ subroutine assert(a)
         error stop "Assertion failed"
     end if
 end subroutine
-
 
 subroutine dostuff()
     use symengine
@@ -663,15 +672,5 @@ subroutine dostuff()
     a = emptyset()
 
 end subroutine
-
-
-
-program test
-
-    implicit none
-
-    call dostuff
-
-    print *, "Finishing"
 
 end program
