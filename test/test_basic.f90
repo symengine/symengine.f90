@@ -682,6 +682,23 @@ subroutine dostuff()
     call assert_eq(a, set_union(a, b))
     call assert_eq(b, set_intersection(a, b))
 
+    a = SymInteger(1)
+    b = SymInteger(2)
+    c = interval(a, b)
+    c = interval(1, 2, left_open=.true., right_open=.false.)
+    c = interval(1, 2_int64)
+    c = interval(1_int64, 2)
+    c = interval(1_int64, 2_int64)
+    c = interval(1.0, 2.0)
+    c = interval(1.0, 2)
+    c = interval(1.0, 2_int64)
+    c = interval(1, 2.0)
+    c = interval(1_int64, 2.0)
+    c = interval(1.0d0, 2)
+    c = interval(1.0d0, 2_int64)
+    c = interval(1, 2.0d0, right_open=.true.)
+    c = interval(1_int64, 2.0d0, left_open=.false.)
+
 end subroutine
 
 end program
