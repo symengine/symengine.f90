@@ -189,14 +189,12 @@ end function
 
 function real_new_i(x) result(res)
     integer(kind=int32) :: x
-    integer(c_long) :: exception
     type(RealDouble) :: res
     res = real_new_d(real(x, 8))
 end function
 
 function real_new_i64(x) result(res)
     integer(kind=int64) :: x
-    integer(c_long) :: exception
     type(RealDouble) :: res
     res = real_new_d(real(x, 8))
 end function
@@ -314,7 +312,6 @@ end subroutine
 subroutine setbasic_assign(a, b)
     class(SetBasic), intent(inout) :: a
     class(SetBasic), intent(in) :: b
-    integer(c_long) :: exception
     integer :: i, dummy
     type(Basic) :: temp
     if (c_associated(a%ptr)) then
@@ -357,10 +354,8 @@ end subroutine
 
 function str(e) result(res)
     class(Basic) :: e
-    character, pointer, dimension(:) :: tempstr
     character(:), allocatable :: res
     type(c_ptr) :: cstring
-    integer :: nchars
     cstring = c_basic_str(e%ptr)
     res = convert_string(cstring)
     call c_basic_str_free(cstring)
@@ -403,42 +398,36 @@ end subroutine
 subroutine basic_assign_i(a, b)
     class(basic), intent(inout) :: a
     integer(kind=int32), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, SymInteger(b))
 end subroutine
 
 subroutine basic_assign_i64(a, b)
     class(basic), intent(inout) :: a
     integer(kind=int64), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, SymInteger(b))
 end subroutine
 
 subroutine basic_assign_f(a, b)
     class(basic), intent(inout) :: a
     real(kind=real32), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, RealDouble(b))
 end subroutine
 
 subroutine basic_assign_d(a, b)
     class(basic), intent(inout) :: a
     real(kind=real64), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, RealDouble(b))
 end subroutine
 
 subroutine basic_assign_c(a, b)
     class(basic), intent(inout) :: a
     complex(kind=real32), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, ComplexDouble(b))
 end subroutine
 
 subroutine basic_assign_c64(a, b)
     class(basic), intent(inout) :: a
     complex(kind=real64), intent(in) :: b
-    integer(c_long) :: exception
     call basic_assign(a, ComplexDouble(b))
 end subroutine
 

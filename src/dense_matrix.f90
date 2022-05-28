@@ -206,10 +206,8 @@ end function
 
 function matrix_str(e) result(res)
     class(DenseMatrix) :: e
-    character, pointer, dimension(:) :: tempstr
     character(:), allocatable :: res
     type(c_ptr) :: cstring
-    integer :: nchars
     cstring = c_dense_matrix_str(e%ptr)
     res = convert_string(cstring)
     call c_basic_str_free(cstring)
@@ -469,7 +467,6 @@ end function
 function matrix_sub_dense(a, b) result(res)
     class(DenseMatrix), intent(in) :: a, b
     type(DenseMatrix) :: res
-    integer(c_long) :: exception
     type(DenseMatrix) :: neg
     neg = -b
     res = matrix_add_dense(a, neg)
