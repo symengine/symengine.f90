@@ -1,0 +1,42 @@
+name: Build and test symengine.f90
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+          os: [ubuntu-latest, macos-latest]
+    steps:
+    - name: Setup gfortran on MacOS
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        sudo ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
+        sudo mkdir /usr/local/gfortran
+        sudo ln -s /usr/local/Cellar/gcc@9/9.3.0_1/lib/gcc/9 /usr/local/gfortran/lib
+    - name: Checkout symengine.f90
+      uses: actions/checkout@v3
+      with:
+        repository: symengine/symengine.f90
+        path: symengine.f90
+    - name: Checkout symengine repo
+      uses: actions/checkout@v3
+      with:
+        repository: symengine/symengine
+        path: symengine-cpp
+    - name: Build symengine
+      run: |
+        cd symengine-cpp
+        mkdir build
+        cd build
+        cmake ..
+        make -j2
+        sudo make install
+    - name: Build and test symengine.f90
+      run: |
+        cd symengine.f90
+        mkdir build
+        cd build
+        cmake ..
+        make -j2
+        ctest
