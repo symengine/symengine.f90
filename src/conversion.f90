@@ -1,5 +1,6 @@
 module conversion
     use, intrinsic :: iso_c_binding
+    use, intrinsic:: ieee_arithmetic, only: ieee_value, ieee_positive_inf, ieee_quiet_nan
     use, intrinsic :: iso_fortran_env, only: i1 => int8, i2 => int16, i4 => int32, i8 => int64, &
                                              r4 => real32, r8 => real64, r16 => real128
     implicit none
@@ -15,15 +16,13 @@ module conversion
     integer(kind=i2), parameter :: comma      = ichar(',',kind=i2) - digit_0
     integer(kind=i2), parameter :: minus_sign = ichar('-',kind=i2) - digit_0
     integer(kind=i2), parameter :: plus_sign  = ichar('+',kind=i2) - digit_0
-    integer(kind=i2), parameter :: Inf        = ichar('I',kind=i2) - digit_0
-    integer(kind=i2), parameter :: NaN        = ichar('N',kind=i2) - digit_0
+    integer(kind=i2), parameter :: Inf        = ichar('I',kind=i2)
+    integer(kind=i2), parameter :: NaN        = ichar('N',kind=i2)
     integer(kind=i2), parameter :: le         = ichar('e',kind=i2) - digit_0
     integer(kind=i2), parameter :: BE         = ichar('E',kind=i2) - digit_0
     integer(kind=i2), parameter :: ld         = ichar('d',kind=i2) - digit_0
     integer(kind=i2), parameter :: BD         = ichar('D',kind=i2) - digit_0
     integer(kind=i2), parameter :: LF = 10, CR = 13, WS = 32
-    
-    real(c_double), parameter :: rNaN = TRANSFER(9218868437227405313_c_int64_t, 1._c_double)
     
     integer(kind=i2), parameter :: nwnb = 40 !> number of whole number factors
     integer(kind=i2), parameter :: nfnb = 40 !> number of fractional number factors
@@ -157,9 +156,9 @@ module conversion
             sign = -1 ; p = p + 1
         end if
         if( iachar(s(p:p)) == Inf ) then
-            r = sign*huge(1_r8); return
+            r = sign*ieee_value(r,  ieee_positive_inf); return
         else if( iachar(s(p:p)) == NaN ) then
-            r = rNaN; return
+            r = ieee_value(r,  ieee_quiet_nan); return
         end if
         
         ! read whole and fractional number in a single integer
