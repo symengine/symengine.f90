@@ -26,47 +26,56 @@ public :: interval, finiteset
 
 contains
 
-type(basic) function emptyset() result(res)
+function emptyset() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_emptyset(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function universalset() result(res)
+function universalset() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_universalset(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function complexes() result(res)
+function complexes() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_complexes(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function reals() result(res)
+function reals() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_reals(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function rationals() result(res)
+function rationals() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_rationals(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function integers() result(res)
+function integers() result(res)
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     call c_basic_set_integers(res%ptr)
-    res%tmp = .true.
 end function
 
-type(basic) function basic_interval(a, b, left_open, right_open) result(res)
+function basic_interval(a, b, left_open, right_open) result(res)
     class(basic), intent(in) :: a, b
     logical, optional :: left_open, right_open
     integer(c_int) :: a_left = 1, a_right = 1
     integer(c_long) :: exception
+    type(basic), allocatable :: res
+    allocate(res)
+    res = Basic()
     if (present(left_open) .and. .not. left_open) then
         a_left = 0
     end if
@@ -76,7 +85,6 @@ type(basic) function basic_interval(a, b, left_open, right_open) result(res)
     res = Basic()
     exception = c_basic_set_interval(res%ptr, a%ptr, b%ptr, a_left, a_right)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 type(basic) function basic_interval_i_i(a, b, left_open, right_open) result(res)
@@ -187,12 +195,14 @@ type(basic) function basic_interval_i64_d(a, b, left_open, right_open) result(re
     res = basic_interval(SymInteger(a), RealDouble(b), left_open, right_open)
 end function
 
-type(basic) function basic_finiteset(d) result(res)
+function basic_finiteset(d) result(res)
     type(c_ptr), dimension(:) :: d
     type(c_ptr) :: set
     integer(c_long) :: exception
     integer :: i
-
+    type(basic), allocatable :: res
+    allocate(res)
+    
     set = c_setbasic_new()
 
     do i = 1, size(d)
@@ -203,25 +213,26 @@ type(basic) function basic_finiteset(d) result(res)
     exception = c_basic_set_finiteset(res%ptr, set)
     call handle_exception(exception)
     call c_setbasic_free(set)
-    res%tmp = .true.
 end function
 
-type(basic) function set_union(a, b) result(res)
+function set_union(a, b) result(res)
     class(basic), intent(in) :: a, b
     integer(c_long) :: exception
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     exception = c_basic_set_union(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
-type(basic) function set_intersection(a, b) result(res)
+function set_intersection(a, b) result(res)
     class(basic), intent(in) :: a, b
     integer(c_long) :: exception
+    type(basic), allocatable :: res
+    allocate(res)
     res = Basic()
     exception = c_basic_set_intersection(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 end module

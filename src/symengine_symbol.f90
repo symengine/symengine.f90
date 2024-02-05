@@ -20,13 +20,15 @@ public :: Symbol
 contains
 
 function symbol_new(c)
-    character(len=*) :: c
-    character(len=len_trim(c) + 1) :: new_c
+    character(*) :: c
+    !private
+    character(len_trim(c) + 1) :: new_c
     integer(c_long) :: exception
-    type(Symbol) :: symbol_new
+    type(Symbol), allocatable :: symbol_new
+    
+    allocate(symbol_new)
     new_c = trim(c) // c_null_char
     symbol_new%ptr = c_basic_new_heap()
-    symbol_new%tmp = .true.
     exception = c_symbol_set(symbol_new%ptr, new_c) 
     call handle_exception(exception)
 end function
