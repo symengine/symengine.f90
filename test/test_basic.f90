@@ -1,8 +1,13 @@
-module test_basic
+program test
     use symengine
     use iso_fortran_env, only: int64, int32
     
     implicit none
+
+    call test1()
+    call test2()
+
+    print *, "Finishing"
     
     contains
     
@@ -716,4 +721,4 @@ module test_basic
         a = finiteset([ptr(SymInteger(1)), ptr(SymInteger(2)), ptr(SymInteger(3)), ptr(SymInteger(4))])
 
     end subroutine
-end module
+end program
