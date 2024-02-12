@@ -1098,13 +1098,21 @@ end function
 
 function evalf(b, bits, r) result(res)
     class(basic), intent(in) :: b
-    integer(c_long) :: bits
-    integer(c_int) :: r
+    integer(c_long), optional :: bits
+    integer(c_int), optional :: r
     type(basic), allocatable :: res
     integer(c_long) :: exception
+    integer(c_int) :: domain
+
+    domain = 1
+    if (present(r)) domain = r
     allocate(res)
     res = Basic()
-    exception = c_basic_evalf(res%ptr, b%ptr, bits, r)
+    if (present(bits)) then
+        exception = c_basic_evalf(res%ptr, b%ptr, bits, domain)
+    else
+        exception = c_basic_evalf(res%ptr, b%ptr, 53_c_long, domain)
+    end if
     call handle_exception(exception)
 end function
 

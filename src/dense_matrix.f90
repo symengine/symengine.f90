@@ -474,7 +474,7 @@ function ones(r, c) result(res)
     integer(c_long) :: exception
     allocate(res)
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_ones(res%ptr, int(r, 8), int(c, 8))
+    exception = c_dense_matrix_ones(res%ptr, int(r, c_long), int(c, c_long))
     call handle_exception(exception)
 end function
 
@@ -484,7 +484,7 @@ function zeros(r, c) result(res)
     integer(c_long) :: exception
     allocate(res)
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_zeros(res%ptr, int(r, 8), int(c, 8))
+    exception = c_dense_matrix_zeros(res%ptr, int(r, c_long), int(c, c_long))
     call handle_exception(exception)
 end function
 
@@ -495,7 +495,7 @@ function eye(n, k) result(res)
     integer(c_long) :: exception
     allocate(res)
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_eye(res%ptr, int(n, 8), int(n, 8), k)
+    exception = c_dense_matrix_eye(res%ptr, int(n, c_long), int(n, c_long), k)
     call handle_exception(exception)
 end function
 
