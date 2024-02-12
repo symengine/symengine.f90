@@ -58,7 +58,7 @@ program test
         f = parse('x * 12')
         
         f = f%subs(x, a)
-        f = f%evalf(53_4, 1)
+        f = f%evalf(53_8, 1)
         print *, f%str()
     end subroutine
     
@@ -287,7 +287,7 @@ program test
 
         a = SymInteger(2)
         c = sqrt(a)
-        c = c%evalf(53_4, 1)
+        c = c%evalf(53_8, 1)
         d = RealDouble(1.4142135623730951d0)
         call assert_eq(c, d)
 
