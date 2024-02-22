@@ -5,39 +5,61 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-          os: [ubuntu-latest, macos-latest]
+        include:
+          # - {os: ubuntu-latest, compiler: gcc, version: 13, build: Debug, flags: '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          # - {os: ubuntu-latest, compiler: gcc, version: 13, build: Release}
+          # - {os: ubuntu-latest, compiler: gcc, version: 12, build: Debug, flags: '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          - {os: ubuntu-latest, compiler: gcc, version: 12, build: Release}
+          # - {os: ubuntu-latest, compiler: gcc, version: 11,  build: Debug, flags: '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          - {os: ubuntu-latest, compiler: gcc, version: 11, build: Release}
+          # - {os: ubuntu-latest, compiler: intel, build: Debug, version: '2023.2'}
+          # - {os: ubuntu-latest, compiler: intel, build: Release, version: '2023.2'}
+          # - {os: ubuntu-latest, compiler: intel-classic, build: Debug, version: '2021.10'}
+          # - {os: ubuntu-latest, compiler: intel-classic, build: Release, version: '2021.10'}
+          # - {os: macos-latest, compiler: gcc, version: 13, build: Debug, '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          # - {os: macos-latest, compiler: gcc, version: 13, build: Release}
+          # - {os: macos-latest, compiler: gcc, version: 12, build: Debug, flags: '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          - {os: macos-latest, compiler: gcc, version: 12, build: Release}
+          # - {os: macos-latest, compiler: gcc, version: 11, build: Debug, flags: '-Wall -Wextra -fcheck=all -pedantic -fbacktrace -g'}
+          - {os: macos-latest, compiler: gcc, version: 11, build: Release}
+          # - {os: macos-latest, compiler: intel-classic, build: Debug, version: '2021.10'}
+          # - {os: macos-latest, compiler: intel-classic, build: Release, version: '2021.10'}
+
     steps:
-    - name: Setup gfortran on MacOS
-      if: ${{ matrix.os == 'macos-latest' }}
-      run: |
-        sudo ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
-        sudo mkdir /usr/local/gfortran
-        sudo ln -s /usr/local/Cellar/gcc@9/9.3.0_1/lib/gcc/9 /usr/local/gfortran/lib
-        echo "FC=/usr/local/bin/gfortran" >> $GITHUB_ENV
-    - name: Checkout symengine.f90
-      uses: actions/checkout@v3
-      with:
-        repository: symengine/symengine.f90
-        path: symengine.f90
-    - name: Checkout symengine repo
-      uses: actions/checkout@v3
-      with:
-        repository: symengine/symengine
-        path: symengine-cpp
-    - name: Build symengine
-      run: |
-        cd symengine-cpp
-        mkdir build
-        cd build
-        cmake ..
-        make -j2
-        sudo make install
-    - name: Build and test symengine.f90
-      run: |
-        cd symengine.f90
-        mkdir build
-        cd build
-        cmake ..
-        make -j2
-        ctest
+      - uses: fortran-lang/setup-fortran@v1
+        id: setup-fortran
+        with:
+          compiler: ${{ matrix.compiler }}
+          version: ${{ matrix.version }}
+      - name: Checkout symengine.f90
+        uses: actions/checkout@v4
+        with:
+          repository: symengine/symengine.f90
+          path: symengine.f90
+      - name: Checkout symengine repo
+        uses: actions/checkout@v4
+        with:
+          repository: symengine/symengine
+          path: symengine-cpp
+      - name: Build symengine
+        env:
+          CMAKE_BUILD_TYPE: ${{ matrix.build }}
+        run: |
+          cd symengine-cpp
+          mkdir build
+          cd build
+          cmake ..
+          make -j4
+          sudo make install
+      - name: Build and test symengine.f90
+        env:
+          FFLAGS: ${{ matrix.flags }}
+        run: |
+          cd symengine.f90
+          mkdir build
+          cd build
+          cmake ..
+          make VERBOSE=1 -j4
+          ctest --output-on-failure
