@@ -10,7 +10,6 @@ implicit none
 
 type DenseMatrix
     type(c_ptr) :: ptr = c_null_ptr
-    logical :: tmp = .false.
 contains
     procedure :: str => matrix_str
     procedure :: matrix_assign, matrix_eq
@@ -88,7 +87,7 @@ function matrix_new(rows, cols, d) result(res)
     type(c_ptr) :: vec
     integer(c_long) :: exception, rlong, clong
     integer :: i
-
+    
     vec = c_vecbasic_new()
 
     do i = 1, size(d)
@@ -100,7 +99,6 @@ function matrix_new(rows, cols, d) result(res)
     clong = int(cols)
     res%ptr = c_dense_matrix_new_vec(rlong, clong, vec)
     call c_vecbasic_free(vec)
-    res%tmp = .true.
 end function
 
 subroutine matrix_free(this)
@@ -117,9 +115,6 @@ subroutine matrix_assign(a, b)
     end if
     exception = c_dense_matrix_set(a%ptr, b%ptr)
     call handle_exception(exception)
-    if (b%tmp) then
-        call matrix_free(b)
-    end if
 end subroutine
 
 function matrix_add_scalar_left(this, b) result(res)
@@ -127,10 +122,10 @@ function matrix_add_scalar_left(this, b) result(res)
     class(Basic), intent(in) :: b
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_add_scalar(res%ptr, this%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_add_scalar_right(a, this) result(res)
@@ -226,11 +221,11 @@ function matrix_neg(this) result(res)
     type(DenseMatrix) :: res
     type(Basic) :: m1
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     m1 = SymInteger(-1)
     exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, m1%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_sub_scalar_left(this, b) result(res)
@@ -308,10 +303,10 @@ function matrix_mul_scalar_left(this, b) result(res)
     class(Basic), intent(in) :: b
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_mul_scalar_right(a, this) result(res)
@@ -391,11 +386,11 @@ function matrix_div_scalar_left(this, b) result(res)
     type(DenseMatrix) :: res
     type(Basic) :: inverse
     integer(c_long) :: exception
+
     inverse = 1 / b
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_mul_scalar(res%ptr, this%ptr, inverse%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_div_scalar_i_left(this, b) result(res)
@@ -438,30 +433,30 @@ function transpose_dense(a) result(res)
     class(DenseMatrix), intent(in) :: a
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_transpose(res%ptr, a%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_mul_dense(a, b) result(res)
     class(DenseMatrix), intent(in) :: a, b
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_mul_matrix(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_add_dense(a, b) result(res)
     class(DenseMatrix), intent(in) :: a, b
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
     exception = c_dense_matrix_add_matrix(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function matrix_sub_dense(a, b) result(res)
@@ -476,20 +471,20 @@ function ones(r, c) result(res)
     integer(kind=int32) :: r, c
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_ones(res%ptr, int(r, 8), int(c, 8))
+    exception = c_dense_matrix_ones(res%ptr, int(r, c_long), int(c, c_long))
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function zeros(r, c) result(res)
     integer(kind=int32) :: r, c
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_zeros(res%ptr, int(r, 8), int(c, 8))
+    exception = c_dense_matrix_zeros(res%ptr, int(r, c_long), int(c, c_long))
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function eye(n, k) result(res)
@@ -497,10 +492,10 @@ function eye(n, k) result(res)
     integer(kind=int32) :: k
     type(DenseMatrix) :: res
     integer(c_long) :: exception
+
     res%ptr = c_dense_matrix_new()
-    exception = c_dense_matrix_eye(res%ptr, int(n, 8), int(n, 8), k)
+    exception = c_dense_matrix_eye(res%ptr, int(n, c_long), int(n, c_long), k)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 end module

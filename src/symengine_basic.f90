@@ -4,13 +4,13 @@ use iso_c_binding, only: c_int, c_long, c_double, c_ptr, c_null_ptr, c_null_char
 use iso_fortran_env, only: int32, int64, real32, real64
 use symengine_interface
 use exceptions
+use conversion
 
 
 type Basic
     type(c_ptr) :: ptr = c_null_ptr
-    logical :: tmp = .false.
 contains
-    procedure :: str, subs, evalf
+    procedure :: str, subs, evalf, dbl
     procedure :: basic_assign, basic_assign_i, basic_assign_i64, basic_assign_f, basic_assign_d
     procedure :: basic_assign_c, basic_assign_c64
     procedure :: basic_add, basic_sub, basic_neg, basic_mul
@@ -75,7 +75,6 @@ end interface
 
 type SetBasic
     type(c_ptr) :: ptr = c_null_ptr
-    logical :: tmp = .false.
 contains
     procedure :: setbasic_assign
     procedure, pass(this) :: size => setbasic_size
@@ -146,7 +145,6 @@ function integer_new(i) result(res)
     res%ptr = c_basic_new_heap()
     exception = c_integer_set_si(res%ptr, j)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function integer_new_i64(i) result(res)
@@ -158,7 +156,6 @@ function integer_new_i64(i) result(res)
     res%ptr = c_basic_new_heap()
     exception = c_integer_set_si(res%ptr, j)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function get(this) result(res)
@@ -171,10 +168,10 @@ function real_new_d(d) result(res)
     real(c_double) :: d
     integer(c_long) :: exception
     type(RealDouble) :: res
+
     res%ptr = c_basic_new_heap()
     exception = c_real_double_set_d(res%ptr, d)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function real_new_f(f) result(res)
@@ -184,7 +181,6 @@ function real_new_f(f) result(res)
     res%ptr = c_basic_new_heap()
     exception = c_real_double_set_d(res%ptr, real(f, 8))
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function real_new_i(x) result(res)
@@ -201,12 +197,11 @@ end function
 
 function complex_new(re, im) result(res)
     class(basic) :: re, im
-    type(basic) :: res
+    type(basic) :: res 
     integer(c_long) :: exception
     res%ptr = c_basic_new_heap()
     exception = c_complex_set(res%ptr, re%ptr, im%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function complex_new_i_i(re, im) result(res)
@@ -299,9 +294,9 @@ function ptr(a) result(res)
     res = a%ptr
 end function
 
-function setbasic_new() result(new)
-    type(SetBasic) :: new
-    new%ptr = c_setbasic_new()
+function setbasic_new() result(res)
+    type(SetBasic) :: res
+    res%ptr = c_setbasic_new()
 end function
 
 subroutine setbasic_free(this)
@@ -322,9 +317,6 @@ subroutine setbasic_assign(a, b)
         temp = b%get(i)
         dummy = c_setbasic_insert(a%ptr, temp%ptr)
     end do
-    if (b%tmp) then
-        call setbasic_free(b)
-    end if
 end subroutine
 
 function setbasic_size(this) result(res)
@@ -337,9 +329,9 @@ function setbasic_get(this, n) result(res)
     class(SetBasic) :: this
     integer :: n
     type(Basic) :: res
+    
     res = Basic()
     call c_setbasic_get(this%ptr, n - 1, res%ptr)
-    res%tmp = .true.
 end function
 
 function basic_new() result(new)
@@ -361,14 +353,19 @@ function str(e) result(res)
     call c_basic_str_free(cstring)
 end function
 
+real(real64) function dbl(e) result(res)
+    class(Basic) :: e
+    res = cdbl(str(e))
+end function
+
 function subs(e, a, b) result(res)
     class(Basic) :: e, a, b
     integer(c_long) :: exception
     type(Basic) :: res
+
     res = Basic()
     exception = c_basic_subs2(res%ptr, e%ptr, a%ptr, b%ptr) 
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_free_symbols(this) result(res)
@@ -378,7 +375,6 @@ function basic_free_symbols(this) result(res)
     res = SetBasic()
     exception = c_basic_free_symbols(this%ptr, res%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 subroutine basic_assign(a, b)
@@ -390,9 +386,6 @@ subroutine basic_assign(a, b)
     end if
     exception = c_basic_assign(a%ptr, b%ptr)
     call handle_exception(exception)
-    if (b%tmp) then
-        call basic_free(b)
-    end if
 end subroutine
 
 subroutine basic_assign_i(a, b)
@@ -435,10 +428,10 @@ function basic_add(a, b) result(res)
     class(basic), intent(in) :: a, b
     type(basic) :: res
     integer(c_long) :: exception
+
     res = Basic()
     exception = c_basic_add(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_add_i_left(this, b) result(res)
@@ -532,7 +525,6 @@ function basic_sub(a, b) result(res)
     res = Basic()
     exception = c_basic_sub(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_sub_i_left(this, b) result(res)
@@ -621,13 +613,13 @@ end function
 
 function basic_neg(a) result(res)
     class(basic), intent(in) :: a
-    type(basic) :: res, zero
+    type(basic) :: res
+    type(basic) :: zero
     integer(c_long) :: exception
     zero = SymInteger(0)
     res = Basic()
     exception = c_basic_sub(res%ptr, zero%ptr, a%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_mul(a, b) result(res)
@@ -637,7 +629,6 @@ function basic_mul(a, b) result(res)
     res = Basic()
     exception = c_basic_mul(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_mul_i_left(this, b) result(res)
@@ -731,7 +722,6 @@ function basic_div(a, b) result(res)
     res = Basic()
     exception = c_basic_div(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_div_i_left(this, b) result(res)
@@ -825,7 +815,6 @@ function basic_pow(a, b) result(res)
     res = Basic()
     exception = c_basic_pow(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 function basic_pow_i_left(this, b) result(res)
@@ -1098,14 +1087,22 @@ end function
 
 function evalf(b, bits, r) result(res)
     class(basic), intent(in) :: b
-    integer(c_long) :: bits
-    integer(c_int) :: r
+    integer(c_long), optional :: bits
+    integer(c_int), optional :: r
     type(basic) :: res
     integer(c_long) :: exception
+    integer(c_int) :: domain
+
+    domain = 1
+    if (present(r)) domain = r
+
     res = Basic()
-    exception = c_basic_evalf(res%ptr, b%ptr, bits, r)
+    if (present(bits)) then
+        exception = c_basic_evalf(res%ptr, b%ptr, bits, domain)
+    else
+        exception = c_basic_evalf(res%ptr, b%ptr, 53_c_long, domain)
+    end if
     call handle_exception(exception)
-    res%tmp = .true.
 end function
 
 end module

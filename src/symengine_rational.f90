@@ -21,15 +21,16 @@ contains
 
 function rational_new(a, b)
     integer :: a, b
+    !private
     integer(c_long) :: x, y
     integer(c_long) :: exception
     type(Rational) :: rational_new
+    
     x = int(a)
     y = int(b)
     rational_new%ptr = c_basic_new_heap()
     exception = c_rational_set_si(rational_new%ptr, x, y)
     call handle_exception(exception)
-    rational_new%tmp = .true.
 end function
 
 end module

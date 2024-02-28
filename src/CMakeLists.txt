@@ -1,4 +1,5 @@
 set(SRC
+    conversion.f90
     exceptions.f90
     symengine_interface.f90
     symengine_basic.f90

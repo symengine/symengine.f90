@@ -34,12 +34,12 @@ function parse(c)
     character(len=*) :: c
     type(Basic) :: parse
     integer(c_long) :: exception
-    character(len=len_trim(c) + 1) :: new_c
+    character(len_trim(c) + 1) :: new_c
+
     new_c = trim(c) // c_null_char
     parse%ptr = c_basic_new_heap()
     exception = c_basic_parse(parse%ptr, new_c) 
     call handle_exception(exception)
-    parse%tmp = .true.
 end function
 
 end module
