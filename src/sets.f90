@@ -27,43 +27,39 @@ public :: interval, finiteset
 contains
 
 function emptyset() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     res = Basic()
     call c_basic_set_emptyset(res%ptr)
 end function
 
 function universalset() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
+
     res = Basic()
     call c_basic_set_universalset(res%ptr)
 end function
 
 function complexes() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     res = Basic()
     call c_basic_set_complexes(res%ptr)
 end function
 
 function reals() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     res = Basic()
     call c_basic_set_reals(res%ptr)
 end function
 
 function rationals() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
+
     res = Basic()
     call c_basic_set_rationals(res%ptr)
 end function
 
 function integers() result(res)
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     res = Basic()
     call c_basic_set_integers(res%ptr)
 end function
@@ -73,8 +69,7 @@ function basic_interval(a, b, left_open, right_open) result(res)
     logical, optional :: left_open, right_open
     integer(c_int) :: a_left = 1, a_right = 1
     integer(c_long) :: exception
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     res = Basic()
     if (present(left_open) .and. .not. left_open) then
         a_left = 0
@@ -200,8 +195,7 @@ function basic_finiteset(d) result(res)
     type(c_ptr) :: set
     integer(c_long) :: exception
     integer :: i
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
     
     set = c_setbasic_new()
 
@@ -218,8 +212,8 @@ end function
 function set_union(a, b) result(res)
     class(basic), intent(in) :: a, b
     integer(c_long) :: exception
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
+
     res = Basic()
     exception = c_basic_set_union(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -228,8 +222,8 @@ end function
 function set_intersection(a, b) result(res)
     class(basic), intent(in) :: a, b
     integer(c_long) :: exception
-    type(basic), allocatable :: res
-    allocate(res)
+    type(basic) :: res
+
     res = Basic()
     exception = c_basic_set_intersection(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)

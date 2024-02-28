@@ -200,6 +200,10 @@ interface
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a
     end function
+    !integer(c_long) function c_basic_log10(s, a) bind(c, name='basic_log10')
+    !    import :: c_long, c_ptr
+    !    type(c_ptr), value :: s, a
+    !end function
     integer(c_long) function c_basic_abs(s, a) bind(c, name='basic_abs')
         import :: c_long, c_ptr
         type(c_ptr), value :: s, a

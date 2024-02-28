@@ -140,8 +140,7 @@ function integer_new(i) result(res)
     integer :: i
     integer(c_long) :: j
     integer(c_long) :: exception
-    type(SymInteger), allocatable :: res
-    allocate(res)
+    type(SymInteger) :: res
     j = int(i)
     res%ptr = c_basic_new_heap()
     exception = c_integer_set_si(res%ptr, j)
@@ -152,8 +151,7 @@ function integer_new_i64(i) result(res)
     integer(kind=int64) :: i
     integer(c_long) :: j
     integer(c_long) :: exception
-    type(SymInteger), allocatable :: res
-    allocate(res)
+    type(SymInteger) :: res
     j = int(i)
     res%ptr = c_basic_new_heap()
     exception = c_integer_set_si(res%ptr, j)
@@ -169,8 +167,8 @@ end function
 function real_new_d(d) result(res)
     real(c_double) :: d
     integer(c_long) :: exception
-    type(RealDouble), allocatable :: res
-    allocate(res)
+    type(RealDouble) :: res
+
     res%ptr = c_basic_new_heap()
     exception = c_real_double_set_d(res%ptr, d)
     call handle_exception(exception)
@@ -179,8 +177,7 @@ end function
 function real_new_f(f) result(res)
     real :: f
     integer(c_long) :: exception
-    type(RealDouble), allocatable :: res
-    allocate(res)
+    type(RealDouble) :: res
     res%ptr = c_basic_new_heap()
     exception = c_real_double_set_d(res%ptr, real(f, 8))
     call handle_exception(exception)
@@ -200,9 +197,8 @@ end function
 
 function complex_new(re, im) result(res)
     class(basic) :: re, im
-    type(basic), allocatable :: res 
+    type(basic) :: res 
     integer(c_long) :: exception
-    allocate(res)
     res%ptr = c_basic_new_heap()
     exception = c_complex_set(res%ptr, re%ptr, im%ptr)
     call handle_exception(exception)
@@ -332,8 +328,7 @@ end function
 function setbasic_get(this, n) result(res)
     class(SetBasic) :: this
     integer :: n
-    type(Basic), allocatable :: res
-    allocate(res)
+    type(Basic) :: res
     
     res = Basic()
     call c_setbasic_get(this%ptr, n - 1, res%ptr)
@@ -366,8 +361,8 @@ end function
 function subs(e, a, b) result(res)
     class(Basic) :: e, a, b
     integer(c_long) :: exception
-    type(Basic), allocatable :: res
-    allocate(res)
+    type(Basic) :: res
+
     res = Basic()
     exception = c_basic_subs2(res%ptr, e%ptr, a%ptr, b%ptr) 
     call handle_exception(exception)
@@ -375,9 +370,8 @@ end function
 
 function basic_free_symbols(this) result(res)
     class(Basic) :: this
-    type(SetBasic), allocatable :: res
+    type(SetBasic) :: res
     integer(c_long) :: exception
-    allocate(res)
     res = SetBasic()
     exception = c_basic_free_symbols(this%ptr, res%ptr)
     call handle_exception(exception)
@@ -432,9 +426,9 @@ end subroutine
 
 function basic_add(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
-    allocate(res)
+
     res = Basic()
     exception = c_basic_add(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -526,9 +520,8 @@ end function
 
 function basic_sub(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
-    allocate(res)
     res = Basic()
     exception = c_basic_sub(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -620,10 +613,9 @@ end function
 
 function basic_neg(a) result(res)
     class(basic), intent(in) :: a
-    type(basic), allocatable :: res
+    type(basic) :: res
     type(basic) :: zero
     integer(c_long) :: exception
-    allocate(res) 
     zero = SymInteger(0)
     res = Basic()
     exception = c_basic_sub(res%ptr, zero%ptr, a%ptr)
@@ -632,9 +624,8 @@ end function
 
 function basic_mul(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
-    allocate(res)
     res = Basic()
     exception = c_basic_mul(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -726,9 +717,8 @@ end function
 
 function basic_div(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
-    allocate(res)
     res = Basic()
     exception = c_basic_div(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -820,9 +810,8 @@ end function
 
 function basic_pow(a, b) result(res)
     class(basic), intent(in) :: a, b
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
-    allocate(res)
     res = Basic()
     exception = c_basic_pow(res%ptr, a%ptr, b%ptr)
     call handle_exception(exception)
@@ -1100,13 +1089,13 @@ function evalf(b, bits, r) result(res)
     class(basic), intent(in) :: b
     integer(c_long), optional :: bits
     integer(c_int), optional :: r
-    type(basic), allocatable :: res
+    type(basic) :: res
     integer(c_long) :: exception
     integer(c_int) :: domain
 
     domain = 1
     if (present(r)) domain = r
-    allocate(res)
+
     res = Basic()
     if (present(bits)) then
         exception = c_basic_evalf(res%ptr, b%ptr, bits, domain)

@@ -24,9 +24,8 @@ function symbol_new(c)
     !private
     character(len_trim(c) + 1) :: new_c
     integer(c_long) :: exception
-    type(Symbol), allocatable :: symbol_new
+    type(Symbol) :: symbol_new
     
-    allocate(symbol_new)
     new_c = trim(c) // c_null_char
     symbol_new%ptr = c_basic_new_heap()
     exception = c_symbol_set(symbol_new%ptr, new_c) 

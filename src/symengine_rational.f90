@@ -24,9 +24,8 @@ function rational_new(a, b)
     !private
     integer(c_long) :: x, y
     integer(c_long) :: exception
-    type(Rational), allocatable :: rational_new
+    type(Rational) :: rational_new
     
-    allocate(rational_new)
     x = int(a)
     y = int(b)
     rational_new%ptr = c_basic_new_heap()
