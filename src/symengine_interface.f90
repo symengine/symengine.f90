@@ -409,7 +409,7 @@ interface
     integer(c_long) function c_basic_set_interval(s, start, en, left_open, right_open) bind(c, name='basic_set_interval')
         import :: c_long, c_int, c_ptr
         type(c_ptr), value :: s, start, en
-        integer(c_int) :: left_open, right_open
+        integer(c_int), value :: left_open, right_open
     end function
     integer(c_long) function c_basic_set_finiteset(s, container) bind(c, name='basic_set_finiteset')
         import :: c_long, c_ptr

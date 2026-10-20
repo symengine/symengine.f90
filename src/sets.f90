@@ -67,15 +67,16 @@ end function
 function basic_interval(a, b, left_open, right_open) result(res)
     class(basic), intent(in) :: a, b
     logical, optional :: left_open, right_open
-    integer(c_int) :: a_left = 1, a_right = 1
+    integer(c_int) :: a_left, a_right
     integer(c_long) :: exception
     type(basic) :: res
-    res = Basic()
-    if (present(left_open) .and. .not. left_open) then
-        a_left = 0
+    a_left = 1
+    a_right = 1
+    if (present(left_open)) then
+        if (.not. left_open) a_left = 0
     end if
-    if (present(right_open) .and. .not. right_open) then
-        a_right = 0
+    if (present(right_open)) then
+        if (.not. right_open) a_right = 0
     end if
     res = Basic()
     exception = c_basic_set_interval(res%ptr, a%ptr, b%ptr, a_left, a_right)
