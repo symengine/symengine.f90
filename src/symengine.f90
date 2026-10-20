@@ -11,6 +11,7 @@ use symengine_symbol
 use constants
 use dense_matrix
 use sets
+use symengine_lambdify
 
 implicit none
 
@@ -27,6 +28,7 @@ public :: SetBasic
 public :: DenseMatrix, transpose, ones, zeros, eye
 public :: emptyset, universalset, complexes, reals, rationals, integers, set_union, set_intersection
 public :: interval, finiteset
+public :: Lambdify, lambdify_function
 
 contains
 

@@ -1,6 +1,6 @@
 module symengine_interface
 
-use iso_c_binding, only: c_size_t, c_ptr, c_long, c_int, c_char, c_double, c_f_pointer
+use iso_c_binding, only: c_size_t, c_ptr, c_long, c_int, c_char, c_double, c_f_pointer, c_funptr
 implicit none
 
 interface
@@ -415,6 +415,75 @@ interface
         import :: c_long, c_ptr
         type(c_ptr), value :: s, container
     end function
+    ! Lambdify. The C functions return a symengine_exceptions_t, i.e. a C int.
+    type(c_ptr) function c_lambda_real_double_visitor_new() bind(c, name='lambda_real_double_visitor_new')
+        import :: c_ptr
+    end function
+    integer(c_int) function c_lambda_real_double_visitor_init(self, args, exprs, perform_cse) &
+            bind(c, name='lambda_real_double_visitor_init')
+        import :: c_int, c_ptr
+        type(c_ptr), value :: self, args, exprs
+        integer(c_int), value :: perform_cse
+    end function
+    integer(c_size_t) function c_lambda_real_double_visitor_get_num_inputs(self) &
+            bind(c, name='lambda_real_double_visitor_get_num_inputs')
+        import :: c_size_t, c_ptr
+        type(c_ptr), value :: self
+    end function
+    integer(c_size_t) function c_lambda_real_double_visitor_get_num_outputs(self) &
+            bind(c, name='lambda_real_double_visitor_get_num_outputs')
+        import :: c_size_t, c_ptr
+        type(c_ptr), value :: self
+    end function
+    subroutine c_lambda_real_double_visitor_call_batch(self, outs, inps, npts) &
+            bind(c, name='lambda_real_double_visitor_call_batch')
+        import :: c_ptr, c_double, c_size_t
+        type(c_ptr), value :: self
+        real(c_double), dimension(*) :: outs
+        real(c_double), dimension(*), intent(in) :: inps
+        integer(c_size_t), value :: npts
+    end subroutine
+    subroutine c_lambda_real_double_visitor_free(self) bind(c, name='lambda_real_double_visitor_free')
+        import :: c_ptr
+        type(c_ptr), value :: self
+    end subroutine
+    ! Only available if SymEngine was built with LLVM
+    type(c_ptr) function c_llvm_double_visitor_new() bind(c, name='llvm_double_visitor_new')
+        import :: c_ptr
+    end function
+    integer(c_int) function c_llvm_double_visitor_init(self, args, exprs, perform_cse, opt_level) &
+            bind(c, name='llvm_double_visitor_init')
+        import :: c_int, c_ptr
+        type(c_ptr), value :: self, args, exprs
+        integer(c_int), value :: perform_cse, opt_level
+    end function
+    integer(c_size_t) function c_llvm_double_visitor_get_num_inputs(self) &
+            bind(c, name='llvm_double_visitor_get_num_inputs')
+        import :: c_size_t, c_ptr
+        type(c_ptr), value :: self
+    end function
+    integer(c_size_t) function c_llvm_double_visitor_get_num_outputs(self) &
+            bind(c, name='llvm_double_visitor_get_num_outputs')
+        import :: c_size_t, c_ptr
+        type(c_ptr), value :: self
+    end function
+    subroutine c_llvm_double_visitor_call_batch(self, outs, inps, npts) &
+            bind(c, name='llvm_double_visitor_call_batch')
+        import :: c_ptr, c_double, c_size_t
+        type(c_ptr), value :: self
+        real(c_double), dimension(*) :: outs
+        real(c_double), dimension(*), intent(in) :: inps
+        integer(c_size_t), value :: npts
+    end subroutine
+    type(c_funptr) function c_llvm_double_visitor_get_function(self) &
+            bind(c, name='llvm_double_visitor_get_function')
+        import :: c_funptr, c_ptr
+        type(c_ptr), value :: self
+    end function
+    subroutine c_llvm_double_visitor_free(self) bind(c, name='llvm_double_visitor_free')
+        import :: c_ptr
+        type(c_ptr), value :: self
+    end subroutine
 end interface 
 
 contains
